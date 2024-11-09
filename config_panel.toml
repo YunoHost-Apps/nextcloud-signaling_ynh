@@ -19,7 +19,7 @@ services = ["__APP__"]
     optional = false
         
         [main.secret.get_secrets_info]
-        ask.en = "Click here to get secrets to configure in your nextcloud instances (check the history bottom bar after clicking on the button...)"
+        ask.en = "Click here to get secrets to configure in your Nextcloud instances (check the history bottom bar after clicking on the button...)"
         type = "alert"
         style = "info"
         
