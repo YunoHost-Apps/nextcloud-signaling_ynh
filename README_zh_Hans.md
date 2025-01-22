@@ -5,7 +5,9 @@
 
 # YunoHost 上的 Nextcloud Signaling
 
-[![集成程度](https://dash.yunohost.org/integration/nextcloud-signaling.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/) ![工作状态](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.maintain.svg)
+[![集成程度](https://apps.yunohost.org/badge/integration/nextcloud-signaling)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/)
+![工作状态](https://apps.yunohost.org/badge/state/nextcloud-signaling)
+![维护状态](https://apps.yunohost.org/badge/maintained/nextcloud-signaling)
 
 [![使用 YunoHost 安装 Nextcloud Signaling](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud-signaling)
 
