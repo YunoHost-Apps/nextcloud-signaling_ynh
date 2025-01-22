@@ -29,7 +29,7 @@ done <<< "$backends_urls"
 ynh_script_progression "Setting up source files..."
 
 ynh_setup_source --dest_dir="$install_dir"
-ynh_add_config --template="root_index.html" --destination="$install_dir/index.html"
+ynh_config_add --template="root_index.html" --destination="$install_dir/index.html"
 
 chown -R "$app:$app" "$install_dir"
 chown "$app:www-data" "$install_dir/index.html"
