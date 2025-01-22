@@ -5,7 +5,9 @@
 
 # Nextcloud Signaling для YunoHost
 
-[![Уровень интеграции](https://dash.yunohost.org/integration/nextcloud-signaling.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/) ![Состояние работы](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.status.svg) ![Состояние сопровождения](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.maintain.svg)
+[![Уровень интеграции](https://apps.yunohost.org/badge/integration/nextcloud-signaling)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/)
+![Состояние работы](https://apps.yunohost.org/badge/state/nextcloud-signaling)
+![Состояние сопровождения](https://apps.yunohost.org/badge/maintained/nextcloud-signaling)
 
 [![Установите Nextcloud Signaling с YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud-signaling)
 

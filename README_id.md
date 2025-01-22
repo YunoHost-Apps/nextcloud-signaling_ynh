@@ -5,7 +5,9 @@ Ini TIDAK boleh diedit dengan tangan.
 
 # Nextcloud Signaling untuk YunoHost
 
-[![Tingkat integrasi](https://dash.yunohost.org/integration/nextcloud-signaling.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/) ![Status kerja](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.status.svg) ![Status pemeliharaan](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.maintain.svg)
+[![Tingkat integrasi](https://apps.yunohost.org/badge/integration/nextcloud-signaling)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/)
+![Status kerja](https://apps.yunohost.org/badge/state/nextcloud-signaling)
+![Status pemeliharaan](https://apps.yunohost.org/badge/maintained/nextcloud-signaling)
 
 [![Pasang Nextcloud Signaling dengan YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud-signaling)
 
