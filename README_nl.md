@@ -5,7 +5,9 @@ Hij mag NIET handmatig aangepast worden.
 
 # Nextcloud Signaling voor Yunohost
 
-[![Integratieniveau](https://dash.yunohost.org/integration/nextcloud-signaling.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/) ![Mate van functioneren](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.status.svg) ![Onderhoudsstatus](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.maintain.svg)
+[![Integratieniveau](https://apps.yunohost.org/badge/integration/nextcloud-signaling)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/)
+![Mate van functioneren](https://apps.yunohost.org/badge/state/nextcloud-signaling)
+![Onderhoudsstatus](https://apps.yunohost.org/badge/maintained/nextcloud-signaling)
 
 [![Nextcloud Signaling met Yunohost installeren](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud-signaling)
 

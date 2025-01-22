@@ -5,7 +5,9 @@ EZ editatu eskuz.
 
 # Nextcloud Signaling YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/nextcloud-signaling.svg)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/nextcloud-signaling.maintain.svg)
+[![Integrazio maila](https://apps.yunohost.org/badge/integration/nextcloud-signaling)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/)
+![Funtzionamendu egoera](https://apps.yunohost.org/badge/state/nextcloud-signaling)
+![Mantentze egoera](https://apps.yunohost.org/badge/maintained/nextcloud-signaling)
 
 [![Instalatu Nextcloud Signaling YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=nextcloud-signaling)
 
