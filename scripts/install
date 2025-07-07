@@ -74,6 +74,16 @@ ynh_script_progression --message="Adding configuration files..." --weight=2
 # Create configuration directories
 mkdir -p "/etc/$app" "/var/log/$app"
 
+# Export backend passwords as environment variables for Jinja template
+while IFS= read -r backend_url; do
+    if [[ -n "$backend_url" ]]; then
+        backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
+        varname="pwd__${backend_id}"
+        password=$(ynh_app_setting_get --key="$varname")
+        export "$varname"="$password"
+    fi
+done <<< "$backends_urls"
+
 # Signaling server configuration
 ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
 chmod 600 "/etc/$app/server.conf"
@@ -118,17 +128,36 @@ ynh_config_add_logrotate
 #=================================================
 ynh_script_progression --message="Starting services..." --weight=3
 
-# Ensure NATS server is running first
+# Start services one by one with proper error checking
+# Start NATS server first
+ynh_script_progression --message="Starting NATS server..." --weight=1
 ynh_systemctl --service=nats-server --action=enable
-ynh_systemctl --service=nats-server --action=restart --wait_until_running
+if ! ynh_systemctl --service=nats-server --action=restart --wait_until_running --timeout=30; then
+    ynh_print_err "Failed to start NATS server"
+    exit 1
+fi
 
-# Then start Janus
+# Wait a moment before starting next service
+sleep 3
+
+# Start Janus
+ynh_script_progression --message="Starting Janus..." --weight=1
 ynh_systemctl --service=janus --action=enable
-ynh_systemctl --service=janus --action=restart --wait_until_running
+if ! ynh_systemctl --service=janus --action=restart --wait_until_running --timeout=30; then
+    ynh_print_err "Failed to start Janus"
+    exit 1
+fi
 
-# Finally start the signaling server
+# Wait a moment before starting signaling server
+sleep 3
+
+# Start the signaling server
+ynh_script_progression --message="Starting signaling server..." --weight=1
 ynh_systemctl --service="$app" --action=enable
-ynh_systemctl --service="$app" --action=restart --wait_until_running
+if ! ynh_systemctl --service="$app" --action=restart --wait_until_running --timeout=30; then
+    ynh_print_err "Failed to start signaling server. Check logs: journalctl -u $app"
+    exit 1
+fi
 
 # Verify services are running
 ynh_script_progression --message="Verifying services..." --weight=1
@@ -137,8 +166,9 @@ ynh_script_progression --message="Verifying services..." --weight=1
 sleep 5
 
 # Check if signaling server is responding
-if ! curl -f -s http://127.0.0.1:$port/api/v1/welcome >/dev/null; then
+if ! curl -f -s --connect-timeout 10 --max-time 15 http://127.0.0.1:$port/api/v1/welcome >/dev/null 2>&1; then
     ynh_print_warn "Signaling server may not be responding properly. Check logs: journalctl -u $app"
+    ynh_print_warn "This is not necessarily an error - the service may need more time to start"
 fi
 
 #=================================================
