@@ -76,97 +76,92 @@ set__backends_urls() {
 # SPECIFIC ACTIONS
 #=================================================
 run__get_secrets() {
-    {
-        echo "🔐 Nextcloud Signaling Secrets"
-        echo "=================================="
-        echo ""
-        echo "Copy these configuration values to your Nextcloud config.php:"
-        echo ""
-        
-        # Get backends list
-        local backends=$(grep -E '^backends\s+=\s+' "/etc/$app/server.conf" 2>/dev/null | cut -d= -f2 | sed 's/[", ]//g')
-        
-        if [[ -z "$backends" ]]; then
-            echo "❌ No backends configured. Please add backend URLs first."
-            return 1
-        fi
-        
-        # Display each backend configuration
-        local backend_count=0
-        for backend in ${backends//,/ }; do
-            if [[ -n "$backend" ]]; then
-                local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                          grep -E -v "^(#|$|\\[)" | \
-                          grep -m1 -E 'url\s+=\s+' | \
-                          cut -d= -f2 | \
-                          sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-                          
-                local secret=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                             grep -E -v "^(#|$|\\[)" | \
-                             grep -m1 -E 'secret\s+=\s+' | \
-                             cut -d= -f2 | \
-                             sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-                
-                if [[ -n "$url" && -n "$secret" ]]; then
-                    echo "Backend #$((++backend_count)): $backend"
-                    echo "  URL: $url"
-                    echo "  Secret: $secret"
-                    echo ""
-                fi
-            fi
-        done
-        
-        if [[ $backend_count -eq 0 ]]; then
-            echo "❌ No valid backend configurations found."
-            return 1
-        fi
-        
-        # Show example Nextcloud configuration
-        echo "Example config.php configuration:"
-        echo "\$CONFIG = ["
-        echo "  // ... other config ..."
-        echo "  'talk' => ["
-        echo "    'servers' => ["
-        
-        backend_count=0
-        for backend in ${backends//,/ }; do
-            if [[ -n "$backend" ]]; then
-                local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                          grep -E -v "^(#|$|\\[)" | \
-                          grep -m1 -E 'url\s+=\s+' | \
-                          cut -d= -f2 | \
-                          sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-                          
-                local secret=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                             grep -E -v "^(#|$|\\[)" | \
-                             grep -m1 -E 'secret\s+=\s+' | \
-                             cut -d= -f2 | \
-                             sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-                
-                if [[ -n "$url" && -n "$secret" ]]; then
-                    echo "      ["
-                    echo "        'server' => '$url',"
-                    echo "        'secret' => '$secret',"
-                    echo "      ],"
-                    ((backend_count++))
-                fi
-            fi
-        done
-        
-        echo "    ],"
-        echo "  ],"
-        echo "];"
-        echo ""
-        echo "📋 Configuration Steps:"
-        echo "1. Edit your Nextcloud config.php file"
-        echo "2. Add the above configuration"
-        echo "3. Install and enable the Talk app if not already done"
-        echo "4. Go to Talk settings in your Nextcloud admin panel"
-        echo "5. The external signaling server should be detected automatically"
-        
-    } >&2
+    echo "🔐 Nextcloud Signaling Secrets"
+    echo "=================================="
+    echo ""
+    echo "Copy these configuration values to your Nextcloud config.php:"
+    echo ""
     
-    return 0
+    # Get backends list
+    local backends=$(grep -E '^backends\s+=\s+' "/etc/$app/server.conf" 2>/dev/null | cut -d= -f2 | sed 's/[", ]//g')
+    
+    if [[ -z "$backends" ]]; then
+        echo "❌ No backends configured. Please add backend URLs first."
+        return 0
+    fi
+    
+    # Display each backend configuration
+    local backend_count=0
+    for backend in ${backends//,/ }; do
+        if [[ -n "$backend" ]]; then
+            local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                      grep -E -v "^(#|$|\\[)" | \
+                      grep -m1 -E 'url\s+=\s+' | \
+                      cut -d= -f2 | \
+                      sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                      
+            local secret=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                         grep -E -v "^(#|$|\\[)" | \
+                         grep -m1 -E 'secret\s+=\s+' | \
+                         cut -d= -f2 | \
+                         sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            
+            if [[ -n "$url" && -n "$secret" ]]; then
+                echo "Backend #$((++backend_count)): $backend"
+                echo "  URL: $url"
+                echo "  Secret: $secret"
+                echo ""
+            fi
+        fi
+    done
+    
+    if [[ $backend_count -eq 0 ]]; then
+        echo "❌ No valid backend configurations found."
+        return 0
+    fi
+    
+    # Show example Nextcloud configuration
+    echo "Example config.php configuration:"
+    echo "\$CONFIG = ["
+    echo "  // ... other config ..."
+    echo "  'talk' => ["
+    echo "    'servers' => ["
+    
+    backend_count=0
+    for backend in ${backends//,/ }; do
+        if [[ -n "$backend" ]]; then
+            local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                      grep -E -v "^(#|$|\\[)" | \
+                      grep -m1 -E 'url\s+=\s+' | \
+                      cut -d= -f2 | \
+                      sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                      
+            local secret=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                         grep -E -v "^(#|$|\\[)" | \
+                         grep -m1 -E 'secret\s+=\s+' | \
+                         cut -d= -f2 | \
+                         sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            
+            if [[ -n "$url" && -n "$secret" ]]; then
+                echo "      ["
+                echo "        'server' => '$url',"
+                echo "        'secret' => '$secret',"
+                echo "      ],"
+                ((backend_count++))
+            fi
+        fi
+    done
+    
+    echo "    ],"
+    echo "  ],"
+    echo "];"
+    echo ""
+    echo "📋 Configuration Steps:"
+    echo "1. Edit your Nextcloud config.php file"
+    echo "2. Add the above configuration"
+    echo "3. Install and enable the Talk app if not already done"
+    echo "4. Go to Talk settings in your Nextcloud admin panel"
+    echo "5. The external signaling server should be detected automatically"
 }
 
 #=================================================
