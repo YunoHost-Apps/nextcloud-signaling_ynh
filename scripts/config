@@ -12,7 +12,8 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS
 #=================================================
 
-install_dir=$(ynh_app_setting_get --key=install_dir)
+app=$YNH_APP_INSTANCE_NAME
+install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
 
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
@@ -76,6 +77,19 @@ set__backends_urls() {
 # SPECIFIC ACTIONS
 #=================================================
 run__get_secrets() {
+    # Check if app is set
+    if [[ -z "$app" ]]; then
+        echo "❌ Error: App name not found"
+        return 0
+    fi
+    
+    # Check if config file exists
+    if [[ ! -f "/etc/$app/server.conf" ]]; then
+        echo "❌ Error: Configuration file /etc/$app/server.conf not found"
+        echo "   Please ensure the signaling server is properly installed."
+        return 0
+    fi
+    
     echo "🔐 Nextcloud Signaling Secrets"
     echo "=================================="
     echo ""
