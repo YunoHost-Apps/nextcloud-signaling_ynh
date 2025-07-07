@@ -123,7 +123,7 @@ ynh_systemctl --service=nats-server --action=enable
 ynh_systemctl --service=nats-server --action=restart --wait_until_running
 
 # Then start Janus
-ynh_systemctl --service=janus --action=enable  
+ynh_systemctl --service=janus --action=enable
 ynh_systemctl --service=janus --action=restart --wait_until_running
 
 # Finally start the signaling server
@@ -137,7 +137,7 @@ ynh_script_progression --message="Verifying services..." --weight=1
 sleep 5
 
 # Check if signaling server is responding
-if ! curl -f -s http://127.0.0.1:$port_main/api/v1/welcome >/dev/null; then
+if ! curl -f -s http://127.0.0.1:$port/api/v1/welcome >/dev/null; then
     ynh_print_warn "Signaling server may not be responding properly. Check logs: journalctl -u $app"
 fi
 
