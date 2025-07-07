@@ -78,91 +78,48 @@ set__backends_urls() {
 # SPECIFIC ACTIONS
 #=================================================
 run__get_secrets() {
-    echo "🔐 Nextcloud Signaling Secrets"
-    echo "=================================="
-    echo ""
-    echo "Copy these configuration values to your Nextcloud config.php:"
-    echo ""
-    
-    # Check if config file exists
+    # Simple test first
     if [[ ! -f "/etc/$app/server.conf" ]]; then
-        echo "❌ Error: Configuration file /etc/$app/server.conf not found"
-        echo "   Please ensure the signaling server is properly installed."
+        echo "Configuration file not found: /etc/$app/server.conf"
         return 0
     fi
     
-    # Get backends list
-    local backends=$(grep -E '^backends\s+=\s+' "/etc/$app/server.conf" 2>/dev/null | cut -d= -f2 | sed 's/[", ]//g' | head -1)
-    
-    if [[ -z "$backends" ]]; then
-        echo "❌ No backends configured. Please add backend URLs first."
-        return 0
-    fi
-    
-    # Display each backend configuration
-    local backend_count=0
-    for backend in ${backends//,/ }; do
-        if [[ -n "$backend" ]]; then
-            local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                      grep -E -v "^(#|$|\\[)" | \
-                      grep -m1 -E 'url\s+=\s+' | \
-                      cut -d= -f2 | \
-                      sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | head -1)
-                      
-            local secret=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                         grep -E -v "^(#|$|\\[)" | \
-                         grep -m1 -E 'secret\s+=\s+' | \
-                         cut -d= -f2 | \
-                         sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | head -1)
-            
-            if [[ -n "$url" && -n "$secret" ]]; then
-                echo "Backend #$((++backend_count)): $backend"
-                echo "  URL: $url"
-                echo "  Secret: $secret"
-                echo ""
-            fi
-        fi
-    done
-    
-    if [[ $backend_count -eq 0 ]]; then
-        echo "❌ No valid backend configurations found."
-        return 0
-    fi
-    
-    # Show simple Nextcloud configuration
-    echo "Example Nextcloud config.php configuration:"
+    echo "=== Nextcloud Signaling Configuration ==="
     echo ""
+    
+    # Get the first backend from the config
+    local backend_line=$(grep -E '^backends\s*=' "/etc/$app/server.conf" 2>/dev/null | head -1)
+    if [[ -z "$backend_line" ]]; then
+        echo "No backends configured in server.conf"
+        return 0
+    fi
+    
+    echo "Backend line found: $backend_line"
+    
+    # Extract backend ID
+    local backend_id=$(echo "$backend_line" | cut -d= -f2 | sed 's/[", ]//g' | tr ',' '\n' | head -1)
+    echo "Backend ID: $backend_id"
+    
+    if [[ -z "$backend_id" ]]; then
+        echo "Could not extract backend ID"
+        return 0
+    fi
+    
+    # Find the backend section and extract URL and secret
+    local url=$(sed -n "/\\[$backend_id\\]/,/\\[/p" "/etc/$app/server.conf" | grep -E '^url\s*=' | head -1 | cut -d= -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    local secret=$(sed -n "/\\[$backend_id\\]/,/\\[/p" "/etc/$app/server.conf" | grep -E '^secret\s*=' | head -1 | cut -d= -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    
+    echo ""
+    echo "URL: $url"
+    echo "Secret: $secret"
+    echo ""
+    echo "Add this to your Nextcloud config.php:"
     echo "'talk' => ["
     echo "  'servers' => ["
+    echo "    ['server' => '$url', 'secret' => '$secret']"
+    echo "  ]"
+    echo "]"
     
-    # Show config for each valid backend
-    for backend in ${backends//,/ }; do
-        if [[ -n "$backend" ]]; then
-            local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                      grep -E -v "^(#|$|\\[)" | \
-                      grep -m1 -E 'url\s+=\s+' | \
-                      cut -d= -f2 | \
-                      sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | head -1)
-                      
-            local secret=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                         grep -E -v "^(#|$|\\[)" | \
-                         grep -m1 -E 'secret\s+=\s+' | \
-                         cut -d= -f2 | \
-                         sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | head -1)
-            
-            if [[ -n "$url" && -n "$secret" ]]; then
-                echo "    ["
-                echo "      'server' => '$url',"
-                echo "      'secret' => '$secret',"
-                echo "    ],"
-            fi
-        fi
-    done
-    
-    echo "  ],"
-    echo "],"
-    echo ""
-    echo "Add this to your Nextcloud config.php and restart your web server."
     return 0
 }
 
