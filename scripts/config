@@ -1,12 +1,4 @@
 #!/bin/bash
-# In simple cases, you don't need a config script.
-
-# With a simple config_panel.toml, you can write in the app settings, in the
-# upstream config file or replace complete files (logo ...) and restart services.
-
-# The config scripts allows you to go further, to handle specific cases
-# (validation of several interdependent fields, specific getter/setter for a value,
-# display dynamic informations or choices, pre-loading of config type .cube... ).
 
 #=================================================
 # IMPORT GENERIC HELPERS
@@ -26,11 +18,18 @@ install_dir=$(ynh_app_setting_get --key=install_dir)
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
 get__backends_urls() {
-    local backends=$(grep -E '^backends\s+=\s+' /etc/$app/server.conf | cut -d= -f2 | sed 's/ //g')
-    for backend in ${backends//,/ }
-    do
-        sed -n '/\['${backend}'\]/,$p' /etc/$app/server.conf | grep -E -v "^(#|$)" | grep -m1 -E 'url\s+=\s+' | cut -d= -f2 | xargs
-        echo ""
+    local backends=$(grep -E '^backends\s+=\s+' "/etc/$app/server.conf" 2>/dev/null | cut -d= -f2 | sed 's/[", ]//g')
+    for backend in ${backends//,/ }; do
+        if [[ -n "$backend" ]]; then
+            local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                      grep -E -v "^(#|$|\\[)" | \
+                      grep -m1 -E 'url\s+=\s+' | \
+                      cut -d= -f2 | \
+                      sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            if [[ -n "$url" ]]; then
+                echo "$url"
+            fi
+        fi
     done
 }
 
@@ -38,34 +37,136 @@ get__backends_urls() {
 # SPECIFIC VALIDATORS FOR TOML SHORT KEYS
 #=================================================
 
+validate__backends_urls() {
+    for url in $backends_urls; do
+        if [[ ! "$url" =~ ^https?:// ]]; then
+            echo "Invalid URL format: $url. Must start with http:// or https://"
+            return 1
+        fi
+    done
+}
+
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
 set__backends_urls() {
-
     # Backend password generation
-    while IFS= read -r backend_url
-    do 
-        local backend_id=$(echo $backend_url | sed s@^https://@@ | sed 's/[.-]/_/g' | sed s@/@_@g)
-        if [[ "$(ynh_app_setting_get --key=pwd__${backend_id})" == "" ]]
-        then
+    while IFS= read -r backend_url; do
+        if [[ -n "$backend_url" ]]; then
+            local backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
             local varname="pwd__${backend_id}"
-            declare "$varname"=$(ynh_string_random)
-            ynh_app_setting_set --key=$varname --value=${!varname}
+            
+            # Generate password if it doesn't exist
+            if [[ -z "$(ynh_app_setting_get --key="$varname")" ]]; then
+                local password=$(ynh_string_random --length=32)
+                ynh_app_setting_set --key="$varname" --value="$password"
+            fi
         fi
     done <<< "$backends_urls"
+    
+    # Update configuration
     ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
+    chmod 600 "/etc/$app/server.conf"
+    chown "$app:$app" "/etc/$app/server.conf"
+    
+    # Restart the service
+    ynh_systemctl --service="$app" --action=restart
 }
 #=================================================
 # SPECIFIC ACTIONS
 #=================================================
 run__get_secrets() {
-    local backends=$(grep -E '^backends\s+=\s+' /etc/$app/server.conf | cut -d= -f2 | sed 's/ //g')
-    for backend in ${backends//,/ }
-    do
-        sed -n '/\['${backend}'\]/,$p' /etc/$app/server.conf | grep -E -v "^(#|$)" | grep -m1 -E 'url\s+=\s+' | cut -d= -f2 | xargs >&$YNH_STDINFO
-        sed -n '/\['${backend}'\]/,$p' /etc/$app/server.conf | grep -E -v "^(#|$)" | grep -m1 -E 'secret\s+=\s+' | cut -d= -f2 | xargs >&$YNH_STDINFO
-    done
+    {
+        echo "🔐 Nextcloud Signaling Secrets"
+        echo "=================================="
+        echo ""
+        echo "Copy these configuration values to your Nextcloud config.php:"
+        echo ""
+        
+        # Get backends list
+        local backends=$(grep -E '^backends\s+=\s+' "/etc/$app/server.conf" 2>/dev/null | cut -d= -f2 | sed 's/[", ]//g')
+        
+        if [[ -z "$backends" ]]; then
+            echo "❌ No backends configured. Please add backend URLs first."
+            return 1
+        fi
+        
+        # Display each backend configuration
+        local backend_count=0
+        for backend in ${backends//,/ }; do
+            if [[ -n "$backend" ]]; then
+                local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                          grep -E -v "^(#|$|\\[)" | \
+                          grep -m1 -E 'url\s+=\s+' | \
+                          cut -d= -f2 | \
+                          sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                          
+                local secret=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                             grep -E -v "^(#|$|\\[)" | \
+                             grep -m1 -E 'secret\s+=\s+' | \
+                             cut -d= -f2 | \
+                             sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                
+                if [[ -n "$url" && -n "$secret" ]]; then
+                    echo "Backend #$((++backend_count)): $backend"
+                    echo "  URL: $url"
+                    echo "  Secret: $secret"
+                    echo ""
+                fi
+            fi
+        done
+        
+        if [[ $backend_count -eq 0 ]]; then
+            echo "❌ No valid backend configurations found."
+            return 1
+        fi
+        
+        # Show example Nextcloud configuration
+        echo "Example config.php configuration:"
+        echo "\$CONFIG = ["
+        echo "  // ... other config ..."
+        echo "  'talk' => ["
+        echo "    'servers' => ["
+        
+        backend_count=0
+        for backend in ${backends//,/ }; do
+            if [[ -n "$backend" ]]; then
+                local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                          grep -E -v "^(#|$|\\[)" | \
+                          grep -m1 -E 'url\s+=\s+' | \
+                          cut -d= -f2 | \
+                          sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                          
+                local secret=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
+                             grep -E -v "^(#|$|\\[)" | \
+                             grep -m1 -E 'secret\s+=\s+' | \
+                             cut -d= -f2 | \
+                             sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                
+                if [[ -n "$url" && -n "$secret" ]]; then
+                    echo "      ["
+                    echo "        'server' => '$url',"
+                    echo "        'secret' => '$secret',"
+                    echo "      ],"
+                    ((backend_count++))
+                fi
+            fi
+        done
+        
+        echo "    ],"
+        echo "  ],"
+        echo "];"
+        echo ""
+        echo "📋 Configuration Steps:"
+        echo "1. Edit your Nextcloud config.php file"
+        echo "2. Add the above configuration"
+        echo "3. Install and enable the Talk app if not already done"
+        echo "4. Go to Talk settings in your Nextcloud admin panel"
+        echo "5. The external signaling server should be detected automatically"
+        
+    } >&2
+    
+    return 0
 }
 
 #=================================================

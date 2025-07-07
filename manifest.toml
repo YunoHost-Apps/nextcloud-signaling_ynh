@@ -7,7 +7,7 @@ name = "Nextcloud Signaling"
 description.en = "Standalone signaling server in order to meet more than 3 persons onto Nextcloud Talk"
 description.fr = "Serveur de signalisation autonome pour rencontrer plus de 3 personnes sur Nextcloud Talk"
 
-version = "2.0.0~ynh2"
+version = "2.0.3~ynh1"
 
 maintainers = ["ljf"]
 
@@ -24,7 +24,7 @@ ldap = "not_relevant"
 sso = "not_relevant"
 
 disk = "50M"
-ram.build = "50M"
+ram.build = "100M"
 ram.runtime = "50M"
 
 [install]
@@ -64,7 +64,7 @@ ram.runtime = "50M"
     url = "https://github.com/strukturag/nextcloud-spreed-signaling/releases/download/v2.0.3/nextcloud-spreed-signaling-v2.0.3.tar.gz"
     sha256 = "2b76556d3a551d2890756156d91878568f5fdbc0f6906a002621343466962200"
 
-    # autoupdate.strategy = "latest_github_tag"
+    autoupdate.strategy = "latest_github_tag"
 
     [resources.system_user]
     home = "/var/www/__APP__"

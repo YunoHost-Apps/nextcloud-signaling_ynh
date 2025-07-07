@@ -6,7 +6,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression "Stopping $app's systemd service..."
+ynh_script_progression --message="Stopping systemd services..." --weight=1
 
 ynh_systemctl --service="$app" --action="stop"
 ynh_systemctl --service="janus" --action="stop"
@@ -15,79 +15,95 @@ ynh_systemctl --service="nats-server" --action="stop"
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression "Upgrading source files..."
+ynh_script_progression --message="Upgrading source files..." --weight=3
 
 ynh_setup_source --dest_dir="$install_dir" --full_replace
-
-chown -R "$app:$app" "$install_dir"
+chown -R "$app:www-data" "$install_dir"
 
 #=================================================
-# BUILD
+# BUILD APPLICATION
 #=================================================
-ynh_script_progression "Building go nextcloud signaling server..."
+ynh_script_progression --message="Building Nextcloud signaling server..." --weight=10
 
+# Install Go
 ynh_go_install
-chmod u+x /etc/profile.d/goenv.sh
-/etc/profile.d/goenv.sh
 
-GOCACHE=/opt/goenv/cache
-export GOCACHE
-pushd $install_dir
-make build
+# Set up Go environment
+export PATH="/usr/local/go/bin:$PATH"
+export GOPATH="$install_dir/go"
+export GOCACHE="$install_dir/.cache/go-build"
+export CGO_ENABLED=1
+
+# Create necessary directories
+mkdir -p "$GOPATH" "$GOCACHE"
+chown -R "$app:www-data" "$GOPATH" "$GOCACHE"
+
+# Build the application
+pushd "$install_dir"
+    ynh_exec_as "$app" env PATH="$PATH" GOPATH="$GOPATH" GOCACHE="$GOCACHE" make build
 popd
+
+# Clean up build artifacts but keep the binary
 ynh_go_remove
-chown -R "$app:$app" "$install_dir"
+
+# Ensure proper ownership
+chown -R "$app:www-data" "$install_dir"
+chmod +x "$install_dir/bin/signaling"
 
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression "Updating $app's configuration files..."
+ynh_script_progression --message="Updating configuration files..." --weight=2
 
-# Signaling server
-mkdir -p /etc/$app/
+# Create configuration directories
+mkdir -p "/etc/$app" "/var/log/$app"
+
+# Signaling server configuration
 ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
-chmod -R 400 "/etc/$app"
-chmod u+x "/etc/$app"
-chown -R "$app:$app" "/etc/$app"
+chmod 600 "/etc/$app/server.conf"
+chown "$app:$app" "/etc/$app/server.conf"
 
-# Janus
+# Janus configuration
+mkdir -p /etc/janus
 ynh_config_add --template="janus.jcfg" --destination="/etc/janus/janus.jcfg"
 ynh_config_add --template="janus.transport.http.jcfg" --destination="/etc/janus/janus.transport.http.jcfg"
 ynh_config_add --template="janus.transport.websockets.jcfg" --destination="/etc/janus/janus.transport.websockets.jcfg"
+chmod 644 /etc/janus/*.jcfg
 
-chmod -R 400 "/etc/janus"
-
-# Nats-server
+# NATS server configuration
 ynh_config_add --template="nats-server.conf" --destination="/etc/nats-server.conf"
-chmod -R 400 "/etc/nats-server.conf"
-chown -R "nats:nats" "/etc/nats-server.conf"
+chmod 644 "/etc/nats-server.conf"
+chown nats:nats "/etc/nats-server.conf"
+
+# Log directory
+chown -R "$app:$app" "/var/log/$app"
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression "Upgrading system configurations related to $app..."
+ynh_script_progression --message="Upgrading system configurations..." --weight=3
 
 ynh_config_add_nginx
-
 ynh_config_add_systemd
 
-yunohost service add "janus" --description="Janus server for nextcloud talk"
-yunohost service add "nats-server" --description="Nats server for nextcloud talk"
-yunohost service add "$app" --description="Signaling server for nextcloud talk" --log="/var/log/$app/$app.log"
+# Add to YunoHost services
+yunohost service add janus --description="Janus WebRTC server for Nextcloud Talk" --log="/var/log/janus/janus.log"
+yunohost service add nats-server --description="NATS server for Nextcloud signaling" --log="/var/log/nats-server.log"
+yunohost service add "$app" --description="Nextcloud signaling server" --log="/var/log/$app/$app.log"
 
 ynh_config_add_logrotate
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression "Starting $app's systemd service..."
+ynh_script_progression --message="Starting services..." --weight=3
 
-ynh_systemctl --service="janus" --action="start"
-ynh_systemctl --service="nats-server" --action="start"
-ynh_systemctl --service="$app" --action="start"
+# Start services in order
+ynh_systemctl --service=nats-server --action=start --log_path="/var/log/nats-server.log"
+ynh_systemctl --service=janus --action=start --log_path="/var/log/janus/janus.log"
+ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
-
-ynh_script_progression "Upgrade of $app completed"
+ynh_script_progression --message="Upgrade of $app completed" --last
