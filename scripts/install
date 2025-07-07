@@ -118,15 +118,28 @@ ynh_config_add_logrotate
 #=================================================
 ynh_script_progression --message="Starting services..." --weight=3
 
-# Start services in order
-ynh_systemctl --service=nats-server --action=enable --log_path="/var/log/nats-server.log"
-ynh_systemctl --service=nats-server --action=start --log_path="/var/log/nats-server.log"
+# Ensure NATS server is running first
+ynh_systemctl --service=nats-server --action=enable
+ynh_systemctl --service=nats-server --action=restart --wait_until_running
 
-ynh_systemctl --service=janus --action=enable --log_path="/var/log/janus/janus.log"
-ynh_systemctl --service=janus --action=start --log_path="/var/log/janus/janus.log"
+# Then start Janus
+ynh_systemctl --service=janus --action=enable  
+ynh_systemctl --service=janus --action=restart --wait_until_running
 
-ynh_systemctl --service="$app" --action=enable --log_path="/var/log/$app/$app.log"
-ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/$app.log"
+# Finally start the signaling server
+ynh_systemctl --service="$app" --action=enable
+ynh_systemctl --service="$app" --action=restart --wait_until_running
+
+# Verify services are running
+ynh_script_progression --message="Verifying services..." --weight=1
+
+# Give services time to fully start
+sleep 5
+
+# Check if signaling server is responding
+if ! curl -f -s http://127.0.0.1:$port_main/api/v1/welcome >/dev/null; then
+    ynh_print_warn "Signaling server may not be responding properly. Check logs: journalctl -u $app"
+fi
 
 #=================================================
 # END OF SCRIPT
