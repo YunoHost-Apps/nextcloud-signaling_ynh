@@ -132,12 +132,11 @@ ynh_script_progression --message="Starting services..." --weight=3
 # Start NATS server first
 ynh_script_progression --message="Starting NATS server..." --weight=1
 ynh_systemctl --service=nats-server --action=enable
-ynh_systemctl --service=nats-server --action=restart
+ynh_systemctl --service=nats-server --action=start
 # Give NATS time to start and check status
 sleep 5
 if ! systemctl is-active --quiet nats-server; then
-    ynh_print_error "Failed to start NATS server"
-    exit 1
+    ynh_die --message="Failed to start NATS server"
 fi
 
 # Wait a moment before starting next service
@@ -146,12 +145,11 @@ sleep 2
 # Start Janus
 ynh_script_progression --message="Starting Janus..." --weight=1
 ynh_systemctl --service=janus --action=enable
-ynh_systemctl --service=janus --action=restart
+ynh_systemctl --service=janus --action=start
 # Give Janus time to start and check status
 sleep 5
 if ! systemctl is-active --quiet janus; then
-    ynh_print_error "Failed to start Janus"
-    exit 1
+    ynh_die --message="Failed to start Janus"
 fi
 
 # Wait a moment before starting signaling server
@@ -160,12 +158,11 @@ sleep 2
 # Start the signaling server
 ynh_script_progression --message="Starting signaling server..." --weight=1
 ynh_systemctl --service="$app" --action=enable
-ynh_systemctl --service="$app" --action=restart
+ynh_systemctl --service="$app" --action=start
 # Give signaling server time to start and check status
 sleep 5
 if ! systemctl is-active --quiet "$app"; then
-    ynh_print_error "Failed to start signaling server. Check logs: journalctl -u $app"
-    exit 1
+    ynh_die --message="Failed to start signaling server. Check logs: journalctl -u $app"
 fi
 
 # Verify services are running
