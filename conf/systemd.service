@@ -40,9 +40,6 @@ SystemCallArchitectures=native
 SystemCallFilter=@system-service
 SystemCallFilter=~@debug @mount @swap @reboot @module @obsolete
 
-[Install]
-WantedBy=multi-user.target
-
 # Denying access to capabilities that should not be relevant for webapps
 # Doc: https://man7.org/linux/man-pages/man7/capabilities.7.html
 CapabilityBoundingSet=~CAP_RAWIO CAP_MKNOD
@@ -54,6 +51,3 @@ CapabilityBoundingSet=~CAP_SYS_TTY_CONFIG
 CapabilityBoundingSet=~CAP_MAC_ADMIN CAP_MAC_OVERRIDE
 CapabilityBoundingSet=~CAP_NET_ADMIN CAP_NET_BROADCAST CAP_NET_RAW
 CapabilityBoundingSet=~CAP_SYS_ADMIN CAP_SYS_PTRACE CAP_SYSLOG
-
-[Install]
-WantedBy=multi-user.target

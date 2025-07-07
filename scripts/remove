@@ -6,17 +6,26 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression "Removing system configurations related to $app..."
+ynh_script_progression --message="Removing system configurations related to $app..." --weight=2
 
+# Remove logrotate configuration
 ynh_config_remove_logrotate
 
+# Remove services from YunoHost monitoring
 if ynh_hide_warnings yunohost service status "$app" >/dev/null; then
     yunohost service remove "$app"
+fi
+if ynh_hide_warnings yunohost service status "nats-server" >/dev/null; then
     yunohost service remove "nats-server"
+fi
+if ynh_hide_warnings yunohost service status "janus" >/dev/null; then
     yunohost service remove "janus"
 fi
+
+# Remove systemd service
 ynh_config_remove_systemd
 
+# Remove nginx configuration
 ynh_config_remove_nginx
 
 # Remove configurations
@@ -24,10 +33,10 @@ ynh_safe_rm "/etc/nats-server.conf"
 ynh_safe_rm "/etc/janus"
 ynh_safe_rm "/etc/$app"
 
+# Clean up Go installation
 ynh_go_remove
 
 #=================================================
 # END OF SCRIPT
 #=================================================
-
-ynh_script_progression "Removal of $app completed"
+ynh_script_progression --message="Removal of $app completed" --last

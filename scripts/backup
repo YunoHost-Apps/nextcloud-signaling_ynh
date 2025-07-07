@@ -3,48 +3,47 @@
 source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
-ynh_print_info "Declaring files to be backed up..."
+ynh_print_info --message="Declaring files to be backed up..."
 
 #=================================================
 # BACKUP THE APP MAIN DIR
 #=================================================
 
-ynh_backup "$install_dir"
+ynh_backup --src_path="$install_dir"
+
+#=================================================
+# BACKUP THE NGINX CONFIGURATION
+#=================================================
+
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
 
 # Backup the signaling config
-ynh_backup "/etc/$app/server.conf"
+ynh_backup --src_path="/etc/$app/"
 
 # Backup janus config
-ynh_backup "/etc/janus/janus.jcfg"
-ynh_backup "/etc/janus/janus.transport.http.jcfg"
-ynh_backup "/etc/janus/janus.transport.websockets.jcfg"
+ynh_backup --src_path="/etc/janus/"
 
 # Backup nats-server config
-ynh_backup "/etc/nats-server.conf"
+ynh_backup --src_path="/etc/nats-server.conf"
 
 # Backup the systemd service unit
-ynh_backup "/etc/systemd/system/$app.service"
+ynh_backup --src_path="/etc/systemd/system/$app.service"
 
 # Backup the logrotate configuration
-ynh_backup "/etc/logrotate.d/$app"
-
-# Backup the Fail2Ban config
-#ynh_backup "/etc/fail2ban/jail.d/$app.conf"
-#ynh_backup "/etc/fail2ban/filter.d/$app.conf"
+ynh_backup --src_path="/etc/logrotate.d/$app"
 
 #=================================================
-# BACKUP VARIOUS FILES
+# BACKUP LOG FILES
 #=================================================
 
-# NB: /var/log is not backuped during safety-backup-before-upgrades, same as $data_dir
-ynh_backup "/var/log/$app/"
+ynh_backup --src_path="/var/log/$app/" --is_big
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."
+ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

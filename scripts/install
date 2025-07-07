@@ -62,7 +62,7 @@ popd
 # Clean up build artifacts but keep the binary
 ynh_go_remove
 
-# Ensure proper ownership
+# Ensure proper ownership and permissions
 chown -R "$app:www-data" "$install_dir"
 chmod +x "$install_dir/bin/signaling"
 

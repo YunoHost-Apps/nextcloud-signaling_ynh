@@ -12,7 +12,11 @@ version = "2.0.3~ynh1"
 maintainers = ["ljf"]
 
 [upstream]
-license = "AGPL-3.0"
+license = "AGPL-3.0-or-later"
+website = "https://github.com/strukturag/nextcloud-spreed-signaling"
+demo = "https://nextcloud.com/talk/"
+admindoc = "https://nextcloud-spreed-signaling.readthedocs.io/"
+userdoc = "https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/high_performance_backend_for_talk.html"
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
