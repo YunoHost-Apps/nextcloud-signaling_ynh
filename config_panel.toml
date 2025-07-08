@@ -16,17 +16,23 @@ services = ["__APP__"]
         help = "List one Nextcloud instances by line to allow its to use this signaling server"
     
     [main.secret]
+    name.en = "Connection Configuration"
     optional = false
         
-        [main.secret.get_secrets_info]
-        ask.en = "Click 'Display secrets' below and check the logs/output at the bottom of the page or in the browser console for the configuration details."
+        [main.secret.instructions]
+        ask.en = "To get your Nextcloud Talk signaling server configuration, click the button below. The configuration will be saved to /tmp/nextcloud-signaling-config.txt on the server."
         type = "alert"
         style = "info"
         
         [main.secret.get_secrets]
-        ask.en = "Display secrets"
+        ask.en = "Generate Configuration File"
         type = "button"
         style = "success"
+        
+        [main.secret.ssh_instructions]
+        ask.en = "After clicking the button above, SSH to your server and run: cat /tmp/nextcloud-signaling-config.txt"
+        type = "alert"
+        style = "warning"
 
     [main.turn]
     name.en = "TURN configuration"
