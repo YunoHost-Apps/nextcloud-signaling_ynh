@@ -58,6 +58,16 @@ ynh_script_progression --message="Updating configuration files..." --weight=2
 # Create configuration directories
 mkdir -p "/etc/$app" "/var/log/$app"
 
+# Export backend passwords as environment variables for Jinja template
+while IFS= read -r backend_url; do
+    if [[ -n "$backend_url" ]]; then
+        backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
+        varname="pwd__${backend_id}"
+        password=$(ynh_app_setting_get --key="$varname")
+        export "$varname"="$password"
+    fi
+done <<< "$(ynh_app_setting_get --key=backends_urls)"
+
 # Signaling server configuration
 ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
 chmod 600 "/etc/$app/server.conf"
@@ -99,9 +109,9 @@ ynh_config_add_logrotate
 ynh_script_progression --message="Starting services..." --weight=3
 
 # Start services in order
-ynh_systemctl --service=nats-server --action=start --log_path="/var/log/nats-server.log"
-ynh_systemctl --service=janus --action=start --log_path="/var/log/janus/janus.log"
-ynh_systemctl --service="$app" --action=start --log_path="/var/log/$app/$app.log"
+ynh_systemctl --service=nats-server --action=start
+ynh_systemctl --service=janus --action=start
+ynh_systemctl --service="$app" --action=start
 
 #=================================================
 # END OF SCRIPT

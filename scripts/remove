@@ -33,6 +33,9 @@ ynh_safe_rm "/etc/nats-server.conf"
 ynh_safe_rm "/etc/janus"
 ynh_safe_rm "/etc/$app"
 
+# Remove log directory
+ynh_safe_rm "/var/log/$app"
+
 # Clean up Go installation
 ynh_go_remove
 

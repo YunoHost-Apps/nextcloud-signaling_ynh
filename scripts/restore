@@ -57,9 +57,9 @@ ynh_restore_file --origin_path="/var/log/$app/" --not_mandatory
 ynh_script_progression --message="Reloading NGINX web server and starting services..." --weight=2
 
 # Start services in order
-ynh_systemctl --service="nats-server" --action="restart" --wait_until=running --timeout=30
-ynh_systemctl --service="janus" --action="restart" --wait_until=running --timeout=30
-ynh_systemctl --service="$app" --action="start" --wait_until=running --timeout=30
+ynh_systemctl --service="nats-server" --action="restart"
+ynh_systemctl --service="janus" --action="restart"
+ynh_systemctl --service="$app" --action="start"
 
 ynh_systemctl --service=nginx --action=reload
 

@@ -68,14 +68,13 @@ EOF
 ynh_go_remove() {
     ynh_script_progression --message="Cleaning up Go installation..." --weight=1
 
-    # Note: We keep Go installed as it might be used by other apps
-    # Just clean up temporary files and caches
-    if [[ -n "$GOCACHE" && -d "$GOCACHE" ]]; then
-        rm -rf "$GOCACHE"
-    fi
-
-    # Clean module cache in install directory
+    # Clean Go module cache in install directory
     if [[ -n "$install_dir" && -d "$install_dir/go" ]]; then
         rm -rf "$install_dir/go"
+    fi
+    
+    # Clean Go build cache
+    if [[ -n "$install_dir" && -d "$install_dir/.cache" ]]; then
+        rm -rf "$install_dir/.cache"
     fi
 }

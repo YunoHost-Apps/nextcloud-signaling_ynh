@@ -171,11 +171,12 @@ ynh_script_progression --message="Verifying services..." --weight=1
 # Give services time to fully start
 sleep 5
 
-# Check if signaling server is responding
-if ! curl -f -s --connect-timeout 10 --max-time 15 http://127.0.0.1:$port/api/v1/welcome >/dev/null 2>&1; then
-    ynh_print_warn "Signaling server may not be responding properly. Check logs: journalctl -u $app"
-    ynh_print_warn "This is not necessarily an error - the service may need more time to start"
-fi
+# Check if all services are active
+for service in nats-server janus "$app"; do
+    if ! systemctl is-active --quiet "$service"; then
+        ynh_print_warn "Service $service is not running. Check logs: journalctl -u $service"
+    fi
+done
 
 #=================================================
 # END OF SCRIPT
