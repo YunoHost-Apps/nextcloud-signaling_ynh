@@ -19,13 +19,14 @@ services = ["__APP__"]
     optional = false
         
         [main.secret.get_secrets_info]
-        ask.en = "Click here to get secrets to configure in your nextcloud instances (check the history bottom bar after clicking on the button...)"
+        ask.en = "Click 'Display secrets' below and check the logs/output at the bottom of the page or in the browser console for the configuration details."
         type = "alert"
         style = "info"
         
         [main.secret.get_secrets]
         ask.en = "Display secrets"
         type = "button"
+        style = "success"
 
     [main.turn]
     name.en = "TURN configuration"

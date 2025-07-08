@@ -88,107 +88,64 @@ set__backends_urls() {
 # SPECIFIC ACTIONS
 #=================================================
 run__get_secrets() {
-    echo "=== Nextcloud Signaling Configuration ==="
-    echo ""
+    local domain=$(ynh_app_setting_get --key=domain)
+    local path=$(ynh_app_setting_get --key=path)
+    local saved_backends=$(ynh_app_setting_get --key=backends_urls)
+    local output_file="/tmp/nextcloud-signaling-config.txt"
     
-    # Method 1: Try to read from server.conf
-    if [[ -f "/etc/$app/server.conf" ]]; then
-        echo "Reading configuration from /etc/$app/server.conf"
+    # Create the output file with configuration
+    {
+        echo "NEXTCLOUD TALK SIGNALING SERVER CONFIGURATION"
+        echo "=============================================="
+        echo ""
+        echo "Generated on: $(date)"
         echo ""
         
-        # Get backend IDs from the backends line
-        local backends_line=$(grep -E '^backends\s*=' "/etc/$app/server.conf" 2>/dev/null | cut -d= -f2 | sed 's/[", ]//g')
-        
-        if [[ -n "$backends_line" ]]; then
-            # Process each backend
-            local backend_count=0
-            for backend_id in ${backends_line//,/ }; do
-                if [[ -n "$backend_id" ]]; then
-                    backend_count=$((backend_count + 1))
-                    echo "Backend $backend_count ID: $backend_id"
-                    
-                    # Extract URL and secret for this backend
-                    local url=$(sed -n "/^\\[$backend_id\\]/,/^\\[/p" "/etc/$app/server.conf" | grep -E '^url\s*=' | head -1 | cut -d= -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-                    local secret=$(sed -n "/^\\[$backend_id\\]/,/^\\[/p" "/etc/$app/server.conf" | grep -E '^secret\s*=' | head -1 | cut -d= -f2 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-                    
-                    if [[ -n "$url" && -n "$secret" ]]; then
-                        echo "  URL: $url"
-                        echo "  Secret: $secret"
-                        echo ""
-                        echo "  Add this to your Nextcloud config.php:"
-                        echo "  'talk' => ["
-                        echo "    'servers' => ["
-                        echo "      ['server' => '$url', 'secret' => '$secret']"
-                        echo "    ]"
-                        echo "  ]"
-                        echo ""
-                        echo "----------------------------------------"
-                        echo ""
-                    else
-                        echo "  Warning: Could not extract URL or secret for backend $backend_id"
-                        echo ""
-                    fi
-                fi
-            done
+        if [[ -n "$saved_backends" ]]; then
+            echo "Signaling Server URL: https://$domain$path/"
+            echo ""
             
-            if [[ $backend_count -eq 0 ]]; then
-                echo "No valid backends found in configuration"
-            fi
+            local backend_num=1
+            while IFS= read -r backend_url; do
+                if [[ -n "$backend_url" ]]; then
+                    local backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
+                    local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
+                    
+                    echo "Backend $backend_num: $backend_url"
+                    echo "Secret: $password"
+                    echo ""
+                    echo "Add this to your Nextcloud config.php:"
+                    echo "'talk' => ["
+                    echo "  'servers' => ["
+                    echo "    ["
+                    echo "      'server' => 'https://$domain$path/',"
+                    echo "      'secret' => '$password'"
+                    echo "    ]"
+                    echo "  ]"
+                    echo "],"
+                    echo ""
+                    echo "----------------------------------------------"
+                    echo ""
+                    
+                    backend_num=$((backend_num + 1))
+                fi
+            done <<< "$saved_backends"
         else
-            echo "No backends configured in server.conf"
+            echo "ERROR: No backend configurations found."
+            echo "Please configure at least one Nextcloud backend URL first."
         fi
-    else
-        echo "Configuration file not found: /etc/$app/server.conf"
-    fi
+        
+        echo "Configuration file location: $output_file"
+        echo "View with: cat $output_file"
+        
+    } | tee "$output_file"
     
-    # Method 2: Fallback - read from YunoHost settings
-    echo ""
-    echo "=== Alternative: Read from YunoHost Settings ==="
-    echo ""
+    # Also ensure the file is readable
+    chmod 644 "$output_file"
     
-    local saved_backends=$(ynh_app_setting_get --key=backends_urls 2>/dev/null)
-    if [[ -n "$saved_backends" ]]; then
-        echo "Saved backend URLs:"
-        while IFS= read -r backend_url; do
-            if [[ -n "$backend_url" ]]; then
-                local backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
-                local varname="pwd__${backend_id}"
-                local password=$(ynh_app_setting_get --key="$varname" 2>/dev/null)
-                
-                echo "  URL: $backend_url"
-                echo "  Secret: $password"
-                echo ""
-                echo "  Add this to your Nextcloud config.php:"
-                echo "  'talk' => ["
-                echo "    'servers' => ["
-                echo "      ['server' => '$backend_url', 'secret' => '$password']"
-                echo "    ]"
-                echo "  ]"
-                echo ""
-                echo "----------------------------------------"
-                echo ""
-            fi
-        done <<< "$saved_backends"
-    else
-        echo "No backend URLs found in YunoHost settings"
-    fi
-    
-    # Method 3: Instructions for manual retrieval
     echo ""
-    echo "=== Manual Configuration Retrieval ==="
-    echo ""
-    echo "If the above methods don't work, you can manually extract the configuration:"
-    echo ""
-    echo "1. Check the configuration file:"
-    echo "   sudo cat /etc/$app/server.conf | grep -A 5 -B 1 '\\[.*\\]'"
-    echo ""
-    echo "2. Check YunoHost settings:"
-    echo "   yunohost app setting $app backends_urls"
-    echo "   yunohost app setting $app --list | grep pwd__"
-    echo ""
-    echo "3. Your signaling server URL should be:"
-    echo "   https://$(ynh_app_setting_get --key=domain)$(ynh_app_setting_get --key=path)/"
-    echo ""
+    echo "Configuration saved to: $output_file"
+    echo "You can also view it with: cat $output_file"
     
     return 0
 }
