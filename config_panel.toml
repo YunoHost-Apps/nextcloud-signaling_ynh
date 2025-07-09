@@ -19,20 +19,23 @@ services = ["__APP__"]
     name.en = "Connection Configuration"
     optional = false
         
-        [main.secret.instructions]
-        ask.en = "To get your Nextcloud Talk signaling server configuration, click the button below. The configuration will be saved to /tmp/nextcloud-signaling-config.txt on the server."
-        type = "alert"
-        style = "info"
+        [main.secret.server_url]
+        ask.en = "Signaling Server URL"
+        type = "string"
+        readonly = true
+        help = "Use this URL in your Nextcloud Talk configuration"
         
-        [main.secret.get_secrets]
-        ask.en = "Generate Configuration File"
-        type = "button"
-        style = "success"
+        [main.secret.shared_secret]
+        ask.en = "Shared Secret"
+        type = "string" 
+        readonly = true
+        help = "Copy this secret to your Nextcloud config.php"
         
-        [main.secret.ssh_instructions]
-        ask.en = "After clicking the button above, SSH to your server and run: cat /tmp/nextcloud-signaling-config.txt"
-        type = "alert"
-        style = "warning"
+        [main.secret.config_example]
+        ask.en = "Nextcloud config.php example"
+        type = "text"
+        readonly = true
+        help = "Copy this configuration block to your Nextcloud config.php file"
 
     [main.turn]
     name.en = "TURN configuration"
