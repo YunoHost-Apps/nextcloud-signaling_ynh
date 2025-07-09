@@ -59,14 +59,10 @@ get__config_example() {
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
 
     if [[ -n "$saved_backends" ]]; then
-        local first_backend=$(echo "$saved_backends" | head -1)
-        local backend_id=$(echo "$first_backend" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
-        local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
-
-        # Simple string output that won't break YAML parsing
-        echo "Copy these values to your Nextcloud config.php talk section. Server: https://$domain$path/ Secret: $password"
+        # Return completely YAML-safe content - no colons, quotes, or special characters
+        echo "Use the Server URL and Shared Secret above in your Nextcloud Talk configuration"
     else
-        echo "Configure Backend URLs first to see the configuration example"
+        echo "Configure Backend URLs first"
     fi
 }
 
