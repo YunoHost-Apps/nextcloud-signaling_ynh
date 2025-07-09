@@ -34,7 +34,13 @@ done <<< "$backends_urls"
 ynh_script_progression --message="Setting up source files..." --weight=3
 
 ynh_setup_source --dest_dir="$install_dir"
+
+# Ensure proper ownership and permissions for the app user
 chown -R "$app:www-data" "$install_dir"
+chmod 755 "$install_dir"
+
+# Ensure the app user has a proper home directory
+usermod -d "$install_dir" "$app" 2>/dev/null || true
 
 #=================================================
 # BUILD APPLICATION

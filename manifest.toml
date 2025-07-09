@@ -71,7 +71,6 @@ ram.runtime = "50M"
     autoupdate.strategy = "latest_github_tag"
 
     [resources.system_user]
-    home = "/var/www/__APP__"
 
     [resources.install_dir]
 
