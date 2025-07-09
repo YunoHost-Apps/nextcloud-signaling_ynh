@@ -57,22 +57,14 @@ get__config_example() {
     local domain=$(ynh_app_setting_get --key=domain)
     local path=$(ynh_app_setting_get --key=path)
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
-    
+
     if [[ -n "$saved_backends" ]]; then
         local first_backend=$(echo "$saved_backends" | head -1)
         local backend_id=$(echo "$first_backend" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
         local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
-        
-        cat << EOF
-'talk' => [
-  'servers' => [
-    [
-      'server' => 'https://$domain$path/',
-      'secret' => '$password'
-    ]
-  ]
-],
-EOF
+
+        # Simple string output that won't break YAML parsing
+        echo "Copy these values to your Nextcloud config.php talk section. Server: https://$domain$path/ Secret: $password"
     else
         echo "Configure Backend URLs first to see the configuration example"
     fi
@@ -136,12 +128,12 @@ run__get_secrets() {
     local domain=$(ynh_app_setting_get --key=domain)
     local path=$(ynh_app_setting_get --key=path)
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
-    
+
     if [[ -n "$saved_backends" ]]; then
         local first_backend=$(echo "$saved_backends" | head -1)
         local backend_id=$(echo "$first_backend" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
         local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
-        
+
         cat > "$output_file" << EOF
 NEXTCLOUD TALK SIGNALING SERVER CONFIGURATION
 ==============================================
@@ -166,7 +158,7 @@ EOF
     else
         echo "No backend configuration found. Please configure backend URLs first."
     fi
-    
+
     return 0
 }
 

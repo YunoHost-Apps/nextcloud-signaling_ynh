@@ -32,10 +32,10 @@ services = ["__APP__"]
         help = "Copy this secret to your Nextcloud config.php"
         
         [main.secret.config_example]
-        ask.en = "Nextcloud config.php example"
-        type = "text"
+        ask.en = "Configuration Instructions"
+        type = "string"
         readonly = true
-        help = "Copy this configuration block to your Nextcloud config.php file"
+        help = "Use the Server URL and Shared Secret above in your Nextcloud Talk configuration"
 
     [main.turn]
     name.en = "TURN configuration"
