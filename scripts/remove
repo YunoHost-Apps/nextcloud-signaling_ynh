@@ -36,7 +36,7 @@ ynh_safe_rm "/etc/$app"
 # Remove log directory
 ynh_safe_rm "/var/log/$app"
 
-# Clean up Go installation
+# Clean up Go installation (custom method, not goenv)
 ynh_go_remove
 
 #=================================================

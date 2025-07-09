@@ -68,6 +68,9 @@ EOF
 ynh_go_remove() {
     ynh_script_progression --message="Cleaning up Go installation..." --weight=1
 
+    # Only clean up app-specific Go files, not the system-wide Go installation
+    # since other apps might be using it
+    
     # Clean Go module cache in install directory
     if [[ -n "$install_dir" && -d "$install_dir/go" ]]; then
         rm -rf "$install_dir/go"
@@ -76,5 +79,11 @@ ynh_go_remove() {
     # Clean Go build cache
     if [[ -n "$install_dir" && -d "$install_dir/.cache" ]]; then
         rm -rf "$install_dir/.cache"
+    fi
+    
+    # Note: We don't remove /usr/local/go as other applications might use it
+    # Only remove our profile script if it exists
+    if [[ -f "/etc/profile.d/go.sh" ]]; then
+        rm -f "/etc/profile.d/go.sh"
     fi
 }
