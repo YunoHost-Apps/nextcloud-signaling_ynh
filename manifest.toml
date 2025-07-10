@@ -83,7 +83,7 @@ ram.runtime = "50M"
 
     [resources.ports]
     main.default = 8080
-    janus_http.default = 8188
+    janus_http.default = 8088
     janus_ws.default = 8188
     nats.default = 4222
 

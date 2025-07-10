@@ -90,6 +90,20 @@ while IFS= read -r backend_url; do
     fi
 done <<< "$backends_urls"
 
+# Export port variables for Jinja template
+export port_janus_ws="$port_janus_ws"
+export port_janus_http="$port_janus_http"
+export port_nats="$port_nats"
+
+# Export other variables for Jinja template
+export hash_key="$hash_key"
+export block_key="$block_key"
+export shared_secret="$shared_secret"
+export backends_urls="$backends_urls"
+export turn_api_key="${turn_api_key:-}"
+export turn_secret="${turn_secret:-}"
+export turn_endpoints="${turn_endpoints:-}"
+
 # Signaling server configuration
 ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
 chmod 600 "/etc/$app/server.conf"
