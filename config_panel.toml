@@ -16,32 +16,26 @@ services = ["__APP__"]
         help = "List one Nextcloud instances by line to allow its to use this signaling server"
     
     [main.secret]
-    name.en = "Connection Configuration"
+    name.en = "Configuration Details"
     optional = false
         
         [main.secret.server_url]
         ask.en = "Signaling Server URL"
         type = "string"
         readonly = true
-        help = "Use this URL in your Nextcloud Talk configuration"
-        
-        [main.secret.shared_secret]
-        ask.en = "Shared Secret (Server 1)"
-        type = "string" 
-        readonly = true
-        help = "Copy this secret to your Nextcloud config.php for the first server"
+        help = "Use this URL in your Nextcloud Talk settings"
         
         [main.secret.backend_info]
-        ask.en = "All Backend Information"
+        ask.en = "Backend Secrets"
         type = "string"
         readonly = true
-        help = "Complete configuration for all configured backend servers"
+        help = "Secrets for each Nextcloud server - copy the secret for your specific server"
         
         [main.secret.config_example]
-        ask.en = "Instructions"
+        ask.en = "Setup Instructions"
         type = "string"
         readonly = true
-        help = "Copy the Server URL and Shared Secret from the fields above into your Nextcloud Talk settings"
+        help = "How to configure your Nextcloud servers"
 
     [main.turn]
     name.en = "TURN configuration"

@@ -41,17 +41,7 @@ get__server_url() {
     echo "https://$domain$path/"
 }
 
-get__shared_secret() {
-    local saved_backends=$(ynh_app_setting_get --key=backends_urls)
-    if [[ -n "$saved_backends" ]]; then
-        local first_backend=$(echo "$saved_backends" | head -1)
-        local backend_id=$(echo "$first_backend" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
-        local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
-        echo "$password"
-    else
-        echo "No backend configured - configure Backend URLs first"
-    fi
-}
+# Removed redundant get__shared_secret function - using backend_info instead
 
 get__backend_info() {
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
@@ -62,10 +52,11 @@ get__backend_info() {
             if [[ -n "$backend_url" ]]; then
                 local backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
                 local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
+                local server_name=$(echo "$backend_url" | sed 's@https://@@' | sed 's@/.*@@')
                 if [[ $count -eq 1 ]]; then
-                    result="Server $count $backend_url Secret $password"
+                    result="$server_name: $password"
                 else
-                    result="$result - Server $count $backend_url Secret $password"
+                    result="$result | $server_name: $password"
                 fi
                 count=$((count + 1))
             fi
@@ -84,9 +75,9 @@ get__config_example() {
     if [[ -n "$saved_backends" ]]; then
         local backend_count=$(echo "$saved_backends" | wc -l)
         if [[ $backend_count -eq 1 ]]; then
-            echo "Use the Server URL and Shared Secret above in your Nextcloud Talk configuration"
+            echo "Add to Nextcloud config.php: 'talk' => ['servers' => [['server' => 'SIGNALING_URL', 'secret' => 'YOUR_SECRET']]]"
         else
-            echo "Multiple backends configured - check secrets for each server individually"
+            echo "Configure each Nextcloud server with Signaling URL above and its corresponding secret from Backend Secrets field"
         fi
     else
         echo "Configure Backend URLs first"
