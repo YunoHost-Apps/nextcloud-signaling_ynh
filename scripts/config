@@ -53,14 +53,41 @@ get__shared_secret() {
     fi
 }
 
+get__backend_info() {
+    local saved_backends=$(ynh_app_setting_get --key=backends_urls)
+    if [[ -n "$saved_backends" ]]; then
+        local count=1
+        local result=""
+        while IFS= read -r backend_url; do
+            if [[ -n "$backend_url" ]]; then
+                local backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
+                local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
+                if [[ $count -eq 1 ]]; then
+                    result="Server $count $backend_url Secret $password"
+                else
+                    result="$result - Server $count $backend_url Secret $password"
+                fi
+                count=$((count + 1))
+            fi
+        done <<< "$saved_backends"
+        echo "$result"
+    else
+        echo "No backends configured"
+    fi
+}
+
 get__config_example() {
     local domain=$(ynh_app_setting_get --key=domain)
     local path=$(ynh_app_setting_get --key=path)
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
 
     if [[ -n "$saved_backends" ]]; then
-        # Return completely YAML-safe content - no colons, quotes, or special characters
-        echo "Use the Server URL and Shared Secret above in your Nextcloud Talk configuration"
+        local backend_count=$(echo "$saved_backends" | wc -l)
+        if [[ $backend_count -eq 1 ]]; then
+            echo "Use the Server URL and Shared Secret above in your Nextcloud Talk configuration"
+        else
+            echo "Multiple backends configured - check secrets for each server individually"
+        fi
     else
         echo "Configure Backend URLs first"
     fi
@@ -83,6 +110,9 @@ validate__backends_urls() {
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
 set__backends_urls() {
+    # Save the backends_urls setting
+    ynh_app_setting_set --key=backends_urls --value="$backends_urls"
+    
     # Backend password generation
     while IFS= read -r backend_url; do
         if [[ -n "$backend_url" ]]; then
@@ -126,15 +156,24 @@ run__get_secrets() {
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
 
     if [[ -n "$saved_backends" ]]; then
-        local first_backend=$(echo "$saved_backends" | head -1)
-        local backend_id=$(echo "$first_backend" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
-        local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
-
         cat > "$output_file" << EOF
 NEXTCLOUD TALK SIGNALING SERVER CONFIGURATION
 ==============================================
 
 Signaling Server URL: https://$domain$path/
+
+Backend Configurations:
+EOF
+
+        local count=1
+        while IFS= read -r backend_url; do
+            if [[ -n "$backend_url" ]]; then
+                local backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
+                local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
+                
+                cat >> "$output_file" << EOF
+
+Backend $count: $backend_url
 Secret: $password
 
 Add this to your Nextcloud config.php:
@@ -146,11 +185,17 @@ Add this to your Nextcloud config.php:
     ]
   ]
 ],
+EOF
+                count=$((count + 1))
+            fi
+        done <<< "$saved_backends"
+
+        cat >> "$output_file" << EOF
 
 Configuration saved to: $output_file
 EOF
         chmod 644 "$output_file"
-        echo "Configuration file created successfully at $output_file"
+        echo "Configuration file created with secrets for all $((count-1)) backend(s)"
     else
         echo "No backend configuration found. Please configure backend URLs first."
     fi
