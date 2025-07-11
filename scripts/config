@@ -54,9 +54,9 @@ get__backend_info() {
                 local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
                 local server_name=$(echo "$backend_url" | sed 's@https://@@' | sed 's@/.*@@')
                 if [[ $count -eq 1 ]]; then
-                    result="$server_name: $password"
+                    result="$server_name = $password"
                 else
-                    result="$result | $server_name: $password"
+                    result="$result | $server_name = $password"
                 fi
                 count=$((count + 1))
             fi
@@ -75,9 +75,9 @@ get__config_example() {
     if [[ -n "$saved_backends" ]]; then
         local backend_count=$(echo "$saved_backends" | wc -l)
         if [[ $backend_count -eq 1 ]]; then
-            echo "Add to Nextcloud config.php: 'talk' => ['servers' => [['server' => 'SIGNALING_URL', 'secret' => 'YOUR_SECRET']]]"
+            echo "Add to Nextcloud config.php talk servers section with the URL and secret above"
         else
-            echo "Configure each Nextcloud server with Signaling URL above and its corresponding secret from Backend Secrets field"
+            echo "Configure each Nextcloud server with the Signaling URL and its corresponding secret"
         fi
     else
         echo "Configure Backend URLs first"
