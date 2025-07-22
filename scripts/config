@@ -54,9 +54,9 @@ get__backend_info() {
                 local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
                 local server_name=$(echo "$backend_url" | sed 's@https://@@' | sed 's@/.*@@')
                 if [[ $count -eq 1 ]]; then
-                    result="$server_name = $password"
+                    result="$server_name=$password"
                 else
-                    result="$result | $server_name = $password"
+                    result="$result|$server_name=$password"
                 fi
                 count=$((count + 1))
             fi
