@@ -13,7 +13,7 @@ go_version="1.23"
 
 # Install Go using YunoHost's Go helper or manual installation
 ynh_go_install() {
-    ynh_script_progression --message="Installing Go $go_version..." --weight=5
+
 
     # Check if Go is already installed with the correct version
     if command -v go >/dev/null 2>&1; then
@@ -41,11 +41,11 @@ ynh_go_install() {
     wget -q -O "$tmp_dir/$go_tarball" "https://golang.org/dl/$go_tarball" || ynh_die "Failed to download Go"
 
     # Remove existing Go installation
-    [ -d /usr/local/go ] && rm -rf /usr/local/go
+    [ -d /usr/local/go ] && ynh_secure_remove /usr/local/go
 
     # Extract Go
     tar -C /usr/local -xzf "$tmp_dir/$go_tarball" || ynh_die "Failed to extract Go"
-    rm -rf "$tmp_dir"
+    ynh_secure_remove "$tmp_dir"
 
     # Add Go to PATH
     export PATH=$PATH:/usr/local/go/bin
@@ -66,19 +66,19 @@ EOF
 
 # Remove Go installation
 ynh_go_remove() {
-    ynh_script_progression --message="Cleaning up Go installation..." --weight=1
+
 
     # Only clean up app-specific Go files, not the system-wide Go installation
     # since other apps might be using it
     
     # Clean Go module cache in install directory
     if [[ -n "$install_dir" && -d "$install_dir/go" ]]; then
-        rm -rf "$install_dir/go"
+        ynh_secure_remove "$install_dir/go"
     fi
     
     # Clean Go build cache
     if [[ -n "$install_dir" && -d "$install_dir/.cache" ]]; then
-        rm -rf "$install_dir/.cache"
+        ynh_secure_remove "$install_dir/.cache"
     fi
     
     # Note: We don't remove /usr/local/go as other applications might use it

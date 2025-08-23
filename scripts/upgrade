@@ -50,6 +50,8 @@ ynh_go_remove
 chown -R "$app:www-data" "$install_dir"
 chmod +x "$install_dir/bin/signaling"
 
+# Restrict world access to install dir for security
+chmod 750 "$install_dir"
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
@@ -116,7 +118,7 @@ ynh_config_add_systemd
 
 # Add to YunoHost services
 yunohost service add janus --description="Janus WebRTC server for Nextcloud Talk" --log="/var/log/janus/janus.log"
-yunohost service add nats-server --description="NATS server for Nextcloud signaling" --log="/var/log/nats-server.log"
+yunohost service add nats-server --description="NATS server for Nextcloud signaling"
 yunohost service add "$app" --description="Nextcloud signaling server" --log="/var/log/$app/$app.log"
 
 ynh_config_add_logrotate
@@ -126,10 +128,66 @@ ynh_config_add_logrotate
 #=================================================
 ynh_script_progression --message="Starting services..." --weight=3
 
-# Start services in order
+# Start services one by one with proper error checking
+# Start NATS server first
+ynh_script_progression --message="Starting NATS server..." --weight=1
+
+# Ensure NATS server is in clean state
+ynh_systemctl --service=nats-server --action=stop || true
+ynh_systemctl --service=nats-server --action=disable || true
+
+# Start NATS server
+ynh_systemctl --service=nats-server --action=enable
 ynh_systemctl --service=nats-server --action=start
+
+# Give NATS time to start and check status
+sleep 5
+if ! systemctl is-active --quiet nats-server; then
+    ynh_print_info "NATS server status:"
+    systemctl status nats-server --no-pager -l || true
+    ynh_print_info "NATS server logs:"
+    journalctl -u nats-server --no-pager -l --lines=20 || true
+    ynh_die --message="Failed to start NATS server. Check logs above for details."
+fi
+
+# Wait a moment before starting next service
+sleep 2
+
+# Start Janus
+ynh_script_progression --message="Starting Janus..." --weight=1
+ynh_systemctl --service=janus --action=enable
 ynh_systemctl --service=janus --action=start
+# Give Janus time to start and check status
+sleep 5
+if ! systemctl is-active --quiet janus; then
+    ynh_die --message="Failed to start Janus"
+fi
+
+# Wait a moment before starting signaling server
+sleep 2
+
+# Start the signaling server
+ynh_script_progression --message="Starting signaling server..." --weight=1
+ynh_systemctl --service="$app" --action=enable
 ynh_systemctl --service="$app" --action=start
+# Give signaling server time to start and check status
+sleep 5
+if ! systemctl is-active --quiet "$app"; then
+    ynh_die --message="Failed to start signaling server. Check logs: journalctl -u $app"
+fi
+
+# Verify services are running
+ynh_script_progression --message="Verifying services..." --weight=1
+
+# Give services time to fully start
+sleep 5
+
+# Check if all services are active
+for service in nats-server janus "$app"; do
+    if ! systemctl is-active --quiet "$service"; then
+        ynh_print_warn "Service $service is not running. Check logs: journalctl -u $service"
+    fi
+done
 
 #=================================================
 # END OF SCRIPT

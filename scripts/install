@@ -37,7 +37,6 @@ ynh_setup_source --dest_dir="$install_dir"
 
 # Ensure proper ownership and permissions for the app user
 chown -R "$app:www-data" "$install_dir"
-chmod 755 "$install_dir"
 
 # Ensure the app user has a proper home directory
 usermod -d "$install_dir" "$app" 2>/dev/null || true
@@ -68,9 +67,12 @@ popd
 # Clean up build artifacts but keep the binary
 ynh_go_remove
 
+
 # Ensure proper ownership and permissions
 chown -R "$app:www-data" "$install_dir"
 chmod +x "$install_dir/bin/signaling"
+# Restrict world access to install dir for security  
+chmod 750 "$install_dir"
 
 #=================================================
 # APP INITIAL CONFIGURATION
@@ -137,7 +139,7 @@ ynh_config_add_systemd
 
 # Add to YunoHost services
 yunohost service add janus --description="Janus WebRTC server for Nextcloud Talk" --log="/var/log/janus/janus.log"
-yunohost service add nats-server --description="NATS server for Nextcloud signaling" --log="/var/log/nats-server.log"
+yunohost service add nats-server --description="NATS server for Nextcloud signaling"
 yunohost service add "$app" --description="Nextcloud signaling server" --log="/var/log/$app/$app.log"
 
 # Add log rotation
@@ -151,12 +153,23 @@ ynh_script_progression --message="Starting services..." --weight=3
 # Start services one by one with proper error checking
 # Start NATS server first
 ynh_script_progression --message="Starting NATS server..." --weight=1
+
+# Ensure NATS server is in clean state
+ynh_systemctl --service=nats-server --action=stop || true
+ynh_systemctl --service=nats-server --action=disable || true
+
+# Start NATS server
 ynh_systemctl --service=nats-server --action=enable
 ynh_systemctl --service=nats-server --action=start
+
 # Give NATS time to start and check status
 sleep 5
 if ! systemctl is-active --quiet nats-server; then
-    ynh_die --message="Failed to start NATS server"
+    ynh_print_info "NATS server status:"
+    systemctl status nats-server --no-pager -l || true
+    ynh_print_info "NATS server logs:"
+    journalctl -u nats-server --no-pager -l --lines=20 || true
+    ynh_die --message="Failed to start NATS server. Check logs above for details."
 fi
 
 # Wait a moment before starting next service
@@ -197,6 +210,14 @@ for service in nats-server janus "$app"; do
         ynh_print_warn "Service $service is not running. Check logs: journalctl -u $service"
     fi
 done
+
+#=================================================
+# FINAL SECURITY PERMISSIONS
+#=================================================
+# Ensure secure permissions are set at the very end
+chown -R "$app:www-data" "$install_dir"
+chmod 750 "$install_dir"  # rwxr-x--- (owner: rwx, group: r-x, other: ---)
+chmod +x "$install_dir/bin/signaling"
 
 #=================================================
 # END OF SCRIPT

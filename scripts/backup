@@ -1,7 +1,14 @@
 #!/bin/bash
 
-source ../settings/scripts/_common.sh
+source _common.sh
 source /usr/share/yunohost/helpers
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
 
 ynh_print_info --message="Declaring files to be backed up..."
 
@@ -9,7 +16,12 @@ ynh_print_info --message="Declaring files to be backed up..."
 # BACKUP THE APP MAIN DIR
 #=================================================
 
-ynh_backup --src_path="$install_dir"
+# Only backup if install directory exists
+if [[ -d "$install_dir" ]]; then
+    ynh_backup --src_path="$install_dir"
+else
+    ynh_print_warn --message="Install directory $install_dir does not exist, skipping backup"
+fi
 
 #=================================================
 # BACKUP THE NGINX CONFIGURATION
@@ -22,25 +34,38 @@ ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 
 # Backup the signaling config
-ynh_backup --src_path="/etc/$app/"
+if [[ -d "/etc/$app" ]]; then
+    ynh_backup --src_path="/etc/$app/"
+fi
 
 # Backup janus config
-ynh_backup --src_path="/etc/janus/"
+if [[ -d "/etc/janus" ]]; then
+    ynh_backup --src_path="/etc/janus/"
+fi
 
 # Backup nats-server config
-ynh_backup --src_path="/etc/nats-server.conf"
+if [[ -f "/etc/nats-server.conf" ]]; then
+    ynh_backup --src_path="/etc/nats-server.conf"
+fi
 
 # Backup the systemd service unit
-ynh_backup --src_path="/etc/systemd/system/$app.service"
+if [[ -f "/etc/systemd/system/$app.service" ]]; then
+    ynh_backup --src_path="/etc/systemd/system/$app.service"
+fi
 
 # Backup the logrotate configuration
-ynh_backup --src_path="/etc/logrotate.d/$app"
+if [[ -f "/etc/logrotate.d/$app" ]]; then
+    ynh_backup --src_path="/etc/logrotate.d/$app"
+fi
 
 #=================================================
 # BACKUP LOG FILES
 #=================================================
 
-ynh_backup --src_path="/var/log/$app/" --is_big
+# Backup logs if directory exists
+if [[ -d "/var/log/$app" ]]; then
+    ynh_backup --src_path="/var/log/$app/" --is_big
+fi
 
 #=================================================
 # END OF SCRIPT

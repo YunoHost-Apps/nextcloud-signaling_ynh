@@ -20,19 +20,11 @@ install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
 get__backends_urls() {
-    local backends=$(grep -E '^backends\s+=\s+' "/etc/$app/server.conf" 2>/dev/null | cut -d= -f2 | sed 's/[", ]//g')
-    for backend in ${backends//,/ }; do
-        if [[ -n "$backend" ]]; then
-            local url=$(sed -n "/\\[$backend\\]/,/\\[/p" "/etc/$app/server.conf" 2>/dev/null | \
-                      grep -E -v "^(#|$|\\[)" | \
-                      grep -m1 -E 'url\s+=\s+' | \
-                      cut -d= -f2 | \
-                      sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-            if [[ -n "$url" ]]; then
-                echo "$url"
-            fi
-        fi
-    done
+    # Get backends_urls from saved settings instead of parsing config file
+    local saved_backends=$(ynh_app_setting_get --key=backends_urls)
+    if [[ -n "$saved_backends" ]]; then
+        echo "$saved_backends"
+    fi
 }
 
 get__server_url() {
@@ -46,17 +38,17 @@ get__server_url() {
 get__backend_info() {
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
     if [[ -n "$saved_backends" ]]; then
-        local count=1
         local result=""
+        local count=1
         while IFS= read -r backend_url; do
             if [[ -n "$backend_url" ]]; then
                 local backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
                 local password=$(ynh_app_setting_get --key="pwd__${backend_id}")
                 local server_name=$(echo "$backend_url" | sed 's@https://@@' | sed 's@/.*@@')
                 if [[ $count -eq 1 ]]; then
-                    result="$server_name=$password"
+                    result="Server ${count} - ${server_name} - ${password}"
                 else
-                    result="$result|$server_name=$password"
+                    result="${result} | Server ${count} - ${server_name} - ${password}"
                 fi
                 count=$((count + 1))
             fi
