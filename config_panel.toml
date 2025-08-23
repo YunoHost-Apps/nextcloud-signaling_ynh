@@ -18,19 +18,7 @@ services = ["__APP__"]
     [main.secret]
     name.en = "Configuration Details"
     optional = false
-        
-        [main.secret.server_url]
-        ask.en = "Signaling Server URL"
-        type = "string"
-        readonly = true
-        help = "Use this URL in your Nextcloud Talk settings"
-        
-        [main.secret.backend_info]
-        ask.en = "Backend Secrets"
-        type = "string"
-        readonly = true
-        help = "Secrets for each Nextcloud server - copy the secret for your specific server"
-        
+    
         [main.secret.config_example]
         ask.en = "Setup Instructions"
         type = "string"
