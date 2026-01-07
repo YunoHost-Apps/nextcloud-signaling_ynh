@@ -25,8 +25,8 @@ chown -R "$app:www-data" "$install_dir"
 #=================================================
 ynh_script_progression "Building Nextcloud signaling server..."
 
-chmod u+x /etc/profile.d/goenv.sh
-/etc/profile.d/goenv.sh
+#chmod u+x /etc/profile.d/goenv.sh
+#/etc/profile.d/goenv.sh
 
 # Set up Go environment
 export PATH="/usr/local/go/bin:$PATH"
@@ -40,11 +40,14 @@ chown -R "$app:www-data" "$GOPATH" "$GOCACHE"
 
 # Build the application
 pushd "$install_dir"
-    ynh_exec_as_app env PATH="$PATH" GOPATH="$GOPATH" GOCACHE="$GOCACHE" make build
+    ynh_hide_warnings ynh_exec_as_app GOPATH="$GOPATH" GOCACHE="$GOCACHE" make build
 popd
 
 # Clean up build artifacts but keep the binary
-ynh_go_remove
+ynh_safe_rm "$install_dir/build/"
+ynh_safe_rm "$install_dir/.cache/"
+ynh_safe_rm "$install_dir/go/"
+ynh_safe_rm "$install_dir/.go-version"
 
 # Ensure proper ownership
 chown -R "$app:www-data" "$install_dir"
