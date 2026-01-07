@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -46,8 +45,8 @@ usermod -d "$install_dir" "$app" 2>/dev/null || true
 #=================================================
 ynh_script_progression --message="Building Nextcloud signaling server..." --weight=10
 
-# Install Go
-ynh_go_install
+chmod u+x /etc/profile.d/goenv.sh
+/etc/profile.d/goenv.sh
 
 # Set up Go environment
 export PATH="/usr/local/go/bin:$PATH"

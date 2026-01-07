@@ -20,7 +20,7 @@ userdoc = "https://docs.nextcloud.com/server/latest/admin_manual/configuration_s
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
-yunohost = ">= 12.0.9"
+yunohost = ">= 12.1.17"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
@@ -66,11 +66,10 @@ ram.runtime = "50M"
     [resources.sources]
 
     [resources.sources.main]
-    url = "https://github.com/strukturag/nextcloud-spreed-signaling/releases/download/v2.0.4/nextcloud-spreed-signaling-v2.0.4.tar.gz"
+    url = "https://github.com/strukturag/nextcloud-spreed-signaling/releases/download/v2.0.0/nextcloud-spreed-signaling-v2.0.4.tar.gz"
     sha256 = "c42a606e51089c3579cb22b2fd76fa8bcd8e74cd02da5db16ec46e15e6820fac"
-
-    autoupdate.strategy = "latest_github_tag"
-
+    autoupdate.strategy = "latest_github_release"
+    
     [resources.system_user]
 
     [resources.install_dir]
@@ -90,3 +89,7 @@ ram.runtime = "50M"
 
     [resources.apt]
     packages = "automake, build-essential, python3, protobuf-compiler, nats-server, janus"
+
+    [resources.go]
+    version = "1.23"
+    
