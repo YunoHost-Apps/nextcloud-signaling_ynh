@@ -6,9 +6,6 @@
 
 source /usr/share/yunohost/helpers
 
-# Don't use ynh_abort_if_errors for config scripts as it can cause issues with actions
-# ynh_abort_if_errors
-
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================

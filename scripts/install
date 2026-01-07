@@ -64,7 +64,6 @@ pushd "$install_dir"
 popd
 
 # Clean up build artifacts but keep the binary
-ynh_safe_rm "$install_dir/build/"
 ynh_safe_rm "$install_dir/.cache/"
 ynh_safe_rm "$install_dir/go/"
 ynh_safe_rm "$install_dir/.go-version"
