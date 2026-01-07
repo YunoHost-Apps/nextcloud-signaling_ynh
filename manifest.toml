@@ -16,7 +16,7 @@ license = "AGPL-3.0"
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
-yunohost = ">= 12.0.9"
+yunohost = ">= 12.1.17"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
@@ -87,3 +87,7 @@ ram.runtime = "50M"
 
     [resources.apt]
     packages = "automake, build-essential, python3, protobuf-compiler, nats-server, janus"
+
+    [resources.go]
+    version = "1.23"
+    

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -37,7 +36,6 @@ chown -R "$app:$app" "$install_dir"
 #=================================================
 ynh_script_progression "Building go nextcloud signaling server..."
 
-ynh_go_install
 chmod u+x /etc/profile.d/goenv.sh
 /etc/profile.d/goenv.sh
 
