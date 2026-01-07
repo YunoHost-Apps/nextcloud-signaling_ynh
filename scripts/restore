@@ -33,6 +33,9 @@ ynh_restore "/etc/janus/"
 ynh_restore "/etc/nats-server.conf"
 chown nats:nats "/etc/nats-server.conf"
 
+# Signaling server configuration
+ynh_restore "/etc/$app/server.conf"
+
 #=================================================
 # RESTORE SYSTEM CONFIGURATIONS
 #=================================================
