@@ -89,6 +89,7 @@ validate__backends_urls() {
 #=================================================
 # SPECIFIC SETTERS FOR TOML SHORT KEYS
 #=================================================
+
 set__backends_urls() {
     # Save the backends_urls setting
     ynh_app_setting_set --key=backends_urls --value="$backends_urls"
@@ -125,9 +126,11 @@ set__backends_urls() {
     # Restart the service
     ynh_systemctl --service="$app" --action=restart
 }
+
 #=================================================
 # SPECIFIC ACTIONS
 #=================================================
+
 run__get_secrets() {
     # Simple version that just creates the file for backup access
     local output_file="/tmp/nextcloud-signaling-config.txt"
