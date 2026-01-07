@@ -50,11 +50,6 @@ if [[ -f "/etc/logrotate.d/$app" ]]; then
     ynh_backup "/etc/logrotate.d/$app"
 fi
 
-# Backup Signaling server configuration
-if [[ -f "/etc/$app/server.conf" ]]; then
-    ynh_backup "/etc/$app/server.conf"
-fi
-
 #=================================================
 # BACKUP LOG FILES
 #=================================================
