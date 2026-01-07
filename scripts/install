@@ -45,8 +45,8 @@ usermod -d "$install_dir" "$app" 2>/dev/null || true
 #=================================================
 ynh_script_progression "Building Nextcloud signaling server..."
 
-chmod u+x /etc/profile.d/goenv.sh
-/etc/profile.d/goenv.sh
+#chmod u+x /etc/profile.d/goenv.sh
+#/etc/profile.d/goenv.sh
 
 # Set up Go environment
 export PATH="/usr/local/go/bin:$PATH"
