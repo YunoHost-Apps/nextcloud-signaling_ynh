@@ -61,7 +61,7 @@ fi
 
 # Backup logs if directory exists
 if [[ -d "/var/log/$app" ]]; then
-    ynh_backup "/var/log/$app/" --is_big
+    ynh_backup "/var/log/$app/"
 fi
 
 #=================================================
