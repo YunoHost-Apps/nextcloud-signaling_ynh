@@ -6,9 +6,6 @@ source /usr/share/yunohost/helpers
 # LOAD SETTINGS
 #=================================================
 
-app=$YNH_APP_INSTANCE_NAME
-install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
-
 ynh_print_info --message="Declaring files to be backed up..."
 
 #=================================================
@@ -23,14 +20,10 @@ else
 fi
 
 #=================================================
-# BACKUP THE NGINX CONFIGURATION
+# SYSTEM CONFIGURATION
 #=================================================
 
 ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
-
-#=================================================
-# SYSTEM CONFIGURATION
-#=================================================
 
 # Backup the signaling config
 if [[ -d "/etc/$app" ]]; then
@@ -63,11 +56,11 @@ fi
 
 # Backup logs if directory exists
 if [[ -d "/var/log/$app" ]]; then
-    ynh_backup --src_path="/var/log/$app/" --is_big
+    ynh_backup "/var/log/$app/" --is_big
 fi
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."
+ynh_print_info "Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."

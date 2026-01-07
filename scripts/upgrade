@@ -5,7 +5,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Stopping systemd services..." --weight=1
+ynh_script_progression "Stopping systemd services..."
 
 ynh_systemctl --service="$app" --action="stop"
 ynh_systemctl --service="janus" --action="stop"
@@ -14,15 +14,16 @@ ynh_systemctl --service="nats-server" --action="stop"
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Upgrading source files..." --weight=3
+ynh_script_progression "Upgrading source files..."
 
 ynh_setup_source --dest_dir="$install_dir" --full_replace
+
 chown -R "$app:www-data" "$install_dir"
 
 #=================================================
 # BUILD APPLICATION
 #=================================================
-ynh_script_progression --message="Building Nextcloud signaling server..." --weight=10
+ynh_script_progression "Building Nextcloud signaling server..."
 
 chmod u+x /etc/profile.d/goenv.sh
 /etc/profile.d/goenv.sh
@@ -51,10 +52,11 @@ chmod +x "$install_dir/bin/signaling"
 
 # Restrict world access to install dir for security
 chmod 750 "$install_dir"
+
 #=================================================
 # UPDATE A CONFIG FILE
 #=================================================
-ynh_script_progression --message="Updating configuration files..." --weight=2
+ynh_script_progression "Updating configuration files..."
 
 # Create configuration directories
 mkdir -p "/etc/$app" "/var/log/$app"
@@ -110,7 +112,7 @@ chown -R "$app:$app" "/var/log/$app"
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Upgrading system configurations..." --weight=3
+ynh_script_progression "Upgrading system configurations..."
 
 ynh_config_add_nginx
 ynh_config_add_systemd
@@ -125,11 +127,11 @@ ynh_config_add_logrotate
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting services..." --weight=3
+ynh_script_progression "Starting services..."
 
 # Start services one by one with proper error checking
 # Start NATS server first
-ynh_script_progression --message="Starting NATS server..." --weight=1
+ynh_script_progression "Starting NATS server..."
 
 # Ensure NATS server is in clean state
 ynh_systemctl --service=nats-server --action=stop || true
@@ -146,37 +148,37 @@ if ! systemctl is-active --quiet nats-server; then
     systemctl status nats-server --no-pager -l || true
     ynh_print_info "NATS server logs:"
     journalctl -u nats-server --no-pager -l --lines=20 || true
-    ynh_die --message="Failed to start NATS server. Check logs above for details."
+    ynh_die "Failed to start NATS server. Check logs above for details."
 fi
 
 # Wait a moment before starting next service
 sleep 2
 
 # Start Janus
-ynh_script_progression --message="Starting Janus..." --weight=1
+ynh_script_progression "Starting Janus..."
 ynh_systemctl --service=janus --action=enable
 ynh_systemctl --service=janus --action=start
 # Give Janus time to start and check status
 sleep 5
 if ! systemctl is-active --quiet janus; then
-    ynh_die --message="Failed to start Janus"
+    ynh_die "Failed to start Janus"
 fi
 
 # Wait a moment before starting signaling server
 sleep 2
 
 # Start the signaling server
-ynh_script_progression --message="Starting signaling server..." --weight=1
+ynh_script_progression "Starting signaling server..."
 ynh_systemctl --service="$app" --action=enable
 ynh_systemctl --service="$app" --action=start
 # Give signaling server time to start and check status
 sleep 5
 if ! systemctl is-active --quiet "$app"; then
-    ynh_die --message="Failed to start signaling server. Check logs: journalctl -u $app"
+    ynh_die "Failed to start signaling server. Check logs: journalctl -u $app"
 fi
 
 # Verify services are running
-ynh_script_progression --message="Verifying services..." --weight=1
+ynh_script_progression "Verifying services..."
 
 # Give services time to fully start
 sleep 5
@@ -191,4 +193,5 @@ done
 #=================================================
 # END OF SCRIPT
 #=================================================
-ynh_script_progression --message="Upgrade of $app completed" --last
+
+ynh_script_progression "Upgrade of $app completed"
