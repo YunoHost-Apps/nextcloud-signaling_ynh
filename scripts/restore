@@ -54,7 +54,8 @@ ynh_restore "/etc/logrotate.d/$app"
 #=================================================
 ynh_script_progression "Restoring log files..."
 
-ynh_restore "/var/log/$app/" --not_mandatory
+ynh_restore "/var/log/$app/"
+chown -R "$app:$app" "/var/log/$app"
 
 #=================================================
 # RELOAD NGINX AND START SERVICES
