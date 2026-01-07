@@ -117,6 +117,7 @@ chown -R "$app:$app" "/var/log/$app"
 ynh_script_progression "Upgrading system configurations..."
 
 ynh_config_add_nginx
+
 ynh_config_add_systemd
 
 # Add to YunoHost services

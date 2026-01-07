@@ -5,10 +5,12 @@ version = "1.0"
 [main]
 name = "Main configuration"
 services = ["__APP__"]
+
     [main.nextcloud]
     name = "Authorization"
     services = ["__APP__"]
     optional = false
+    
         [main.nextcloud.backends_urls]
         ask.en = "Backends urls"
         type = "text"
