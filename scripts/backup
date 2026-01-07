@@ -6,7 +6,7 @@ source /usr/share/yunohost/helpers
 # LOAD SETTINGS
 #=================================================
 
-ynh_print_info --message="Declaring files to be backed up..."
+ynh_print_info "Declaring files to be backed up..."
 
 #=================================================
 # BACKUP THE APP MAIN DIR
@@ -14,40 +14,40 @@ ynh_print_info --message="Declaring files to be backed up..."
 
 # Only backup if install directory exists
 if [[ -d "$install_dir" ]]; then
-    ynh_backup --src_path="$install_dir"
+    ynh_backup "$install_dir"
 else
-    ynh_print_warn --message="Install directory $install_dir does not exist, skipping backup"
+    ynh_print_warn "Install directory $install_dir does not exist, skipping backup"
 fi
 
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
 
-ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Backup the signaling config
 if [[ -d "/etc/$app" ]]; then
-    ynh_backup --src_path="/etc/$app/"
+    ynh_backup "/etc/$app/"
 fi
 
 # Backup janus config
 if [[ -d "/etc/janus" ]]; then
-    ynh_backup --src_path="/etc/janus/"
+    ynh_backup "/etc/janus/"
 fi
 
 # Backup nats-server config
 if [[ -f "/etc/nats-server.conf" ]]; then
-    ynh_backup --src_path="/etc/nats-server.conf"
+    ynh_backup "/etc/nats-server.conf"
 fi
 
 # Backup the systemd service unit
 if [[ -f "/etc/systemd/system/$app.service" ]]; then
-    ynh_backup --src_path="/etc/systemd/system/$app.service"
+    ynh_backup "/etc/systemd/system/$app.service"
 fi
 
 # Backup the logrotate configuration
 if [[ -f "/etc/logrotate.d/$app" ]]; then
-    ynh_backup --src_path="/etc/logrotate.d/$app"
+    ynh_backup "/etc/logrotate.d/$app"
 fi
 
 #=================================================
