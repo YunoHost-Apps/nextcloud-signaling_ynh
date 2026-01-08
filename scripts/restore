@@ -19,6 +19,8 @@ ynh_script_progression "Restoring configuration files..."
 # Signaling server
 ynh_restore "/etc/$app"
 chown -R "$app:$app" "/etc/$app"
+chmod 600 "/etc/$app/server.conf"
+chown "$app:$app" "/etc/$app/server.conf"
 
 # Ensure proper ownership and permissions
 chown -R "$app:www-data" "$install_dir"
