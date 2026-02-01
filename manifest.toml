@@ -16,7 +16,7 @@ license = "AGPL-3.0"
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
-yunohost = ">= 12.1.17"
+yunohost = ">= 12.1.38"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
@@ -55,7 +55,6 @@ ram.runtime = "50M"
     [install.turn_secret]
     ask.en = "TURN secret"
     type = "string"
-
 
 [resources]
 
