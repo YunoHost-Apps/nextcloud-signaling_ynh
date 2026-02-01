@@ -43,7 +43,7 @@ ram.runtime = "60M"
     [install.backends_urls]
     ask.en = "Backend url"
     type = "string"
-    example = "https://cloud.example.com"
+    example = "https://nextcloud.example.com"
     help = "Configure the first Nextcloud instance to allow the use this signaling server. After the installation, you will be able to add others instances from the app configuration panel."
 
     [install.turn_endpoints]
