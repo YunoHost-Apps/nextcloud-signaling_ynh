@@ -35,7 +35,7 @@ services = ["__APP__"]
         [main.turn.turn_endpoints]
         ask.en = "TURN server endpoints"
         type = "string"
-        bind = "apikey>servers:/etc/__APP__/server.conf"
+        bind = "apikey>servers:__INSTALL_DIR__/server.conf"
         example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
         help = "You can fill several endpoints like this `turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp`"
         pattern.regexp = '^turns?:'
@@ -44,11 +44,11 @@ services = ["__APP__"]
         [main.turn.turn_api_key]
         ask.en = "TURN API key"
         type = "string"
-        bind = "apikey:/etc/__APP__/server.conf"
+        bind = "apikey:__INSTALL_DIR__/server.conf"
         
         [main.turn.turn_secret]
         ask.en = "TURN secret"
         type = "string"
-        bind = "apikey>secret:/etc/__APP__/server.conf"
+        bind = "apikey>secret:__INSTALL_DIR__/server.conf"
         help = "The shared secret to use for generating TURN credentials. This must be the same as on the TURN server."
         redact = true

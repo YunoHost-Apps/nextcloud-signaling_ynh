@@ -34,9 +34,6 @@ ynh_script_progression "Setting up source files..."
 
 ynh_setup_source --dest_dir="$install_dir"
 
-# Ensure proper ownership and permissions for the app user
-chown -R "$app:www-data" "$install_dir"
-
 # Ensure the app user has a proper home directory
 usermod -d "$install_dir" "$app" 2>/dev/null || true
 
@@ -80,7 +77,7 @@ chmod 750 "$install_dir"
 ynh_script_progression "Adding configuration files..."
 
 # Create configuration directories
-mkdir -p "/etc/$app" "/var/log/$app"
+mkdir -p "/var/log/$app"
 
 # Export backend passwords as environment variables for Jinja template
 while IFS= read -r backend_url; do
@@ -107,9 +104,8 @@ export turn_secret="${turn_secret:-}"
 export turn_endpoints="${turn_endpoints:-}"
 
 # Signaling server configuration
-ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
-chmod 600 "/etc/$app/server.conf"
-chown "$app:$app" "/etc/$app/server.conf"
+ynh_config_add --jinja --template="server.conf" --destination="$install_dir/server.conf"
+chmod 600 "$install_dir/server.conf"
 
 # Janus configuration
 mkdir -p /etc/janus
