@@ -40,14 +40,16 @@ ram.runtime = "50M"
     ask.en = "Backend url"
     type = "string"
     example = "https://cloud.example.com"
-    help = "Configure the first Nextcloud instance to allow the use this signaling server. After the installation, you will be able to add others instances from the app configuration panel."
-
+    help.en = "Configure the first Nextcloud instance to allow the use this signaling server. After the installation, you will be able to add others instances from the app configuration panel."
+    help.fr = "Configurez la première instance Nextcloud pour autoriser l'utilisation de ce serveur de signalisation. Après l'installation, vous pourrez ajouter d'autres instances à partir du panneau de configuration de l'application."
+    
     [install.turn_endpoints]
     ask.en = "TURN server endpoints"
     type = "string"
     example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
     help.en = "You need at least one Coturn or eturn servers. Coturn is packaged for YunoHost so you should probably install it first."
-
+    help.fr = "Vous avez besoin d'au moins un serveur Coturn ou eturn. Coturn est fourni dans le package YunoHost, vous devriez donc probablement l'installer en premier."
+    
     [install.turn_api_key]
     ask.en = "TURN API key"
     type = "string"
