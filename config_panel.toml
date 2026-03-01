@@ -22,14 +22,12 @@ services = ["__APP__"]
     [main.secret]
     name.en = "Configuration Details"
     optional = false
-<<<<<<< Updated upstream
     
         [main.secret.config_example]
         ask.en = "Setup Instructions"
         type = "string"
         readonly = true
         help = "How to configure your Nextcloud servers"
-=======
         
         [main.secret.get_secrets_info]
         ask.en = "Click here to get secrets to configure in your Nextcloud instances (check the history bottom bar after clicking on the button...)"
@@ -41,7 +39,6 @@ services = ["__APP__"]
         ask.en = "Display secrets"
         ask.fr = "Afficher les secrets"
         type = "button"
->>>>>>> Stashed changes
 
     [main.turn]
     name.en = "TURN configuration"
