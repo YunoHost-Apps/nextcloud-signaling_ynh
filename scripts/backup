@@ -13,11 +13,7 @@ ynh_print_info "Declaring files to be backed up..."
 #=================================================
 
 # Only backup if install directory exists
-if [[ -d "$install_dir" ]]; then
-    ynh_backup "$install_dir"
-else
-    ynh_print_warn "Install directory $install_dir does not exist, skipping backup"
-fi
+ynh_backup "$install_dir"
 
 #=================================================
 # SYSTEM CONFIGURATION
@@ -26,38 +22,24 @@ fi
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Backup the signaling config
-if [[ -d "/etc/$app" ]]; then
-    ynh_backup "/etc/$app/"
-fi
+ynh_backup "/etc/$app/"
 
-# Backup janus config
-if [[ -d "/etc/janus" ]]; then
-    ynh_backup "/etc/janus/"
-fi
+ynh_backup "/etc/janus/"
 
 # Backup nats-server config
-if [[ -f "/etc/nats-server.conf" ]]; then
-    ynh_backup "/etc/nats-server.conf"
-fi
+ynh_backup "/etc/nats-server.conf"
 
 # Backup the systemd service unit
-if [[ -f "/etc/systemd/system/$app.service" ]]; then
-    ynh_backup "/etc/systemd/system/$app.service"
-fi
+ynh_backup "/etc/systemd/system/$app.service"
 
-# Backup the logrotate configuration
-if [[ -f "/etc/logrotate.d/$app" ]]; then
-    ynh_backup "/etc/logrotate.d/$app"
-fi
+ynh_backup "/etc/logrotate.d/$app"
 
 #=================================================
 # BACKUP LOG FILES
 #=================================================
 
 # Backup logs if directory exists
-if [[ -d "/var/log/$app" ]]; then
-    ynh_backup "/var/log/$app/"
-fi
+ynh_backup "/var/log/$app/"
 
 #=================================================
 # END OF SCRIPT
