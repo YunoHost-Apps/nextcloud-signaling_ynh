@@ -10,7 +10,7 @@ It shall NOT be edited by hand.
 
 Standalone signaling server in order to meet more than 3 persons onto Nextcloud Talk
 
-[![Version: 2.0.4~ynh1](https://img.shields.io/badge/Version-2.0.4~ynh1-rgb(18,138,11)?style=for-the-badge)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/)
+[![Version: 2.1.0~ynh1](https://img.shields.io/badge/Version-2.1.0~ynh1-rgb(18,138,11)?style=for-the-badge)](https://ci-apps.yunohost.org/ci/apps/nextcloud-signaling/)
 
 <div align="center">
 <a href="https://apps.yunohost.org/app/nextcloud-signaling"><img height="100px" src="https://github.com/YunoHost/yunohost-artwork/raw/refs/heads/main/badges/neopossum-badges/badge_more_info_on_the_appstore.svg"/></a>
