@@ -5,21 +5,26 @@ source /usr/share/yunohost/helpers
 #=================================================
 # INITIALIZE AND STORE SETTINGS
 #=================================================
+ynh_script_progression "Storing installation settings..."
 
+# Generate secure random keys
 hash_key=$(ynh_string_random --length=64)
 block_key=$(ynh_string_random --length=32)
 shared_secret=$(ynh_string_random --length=64)
-ynh_app_setting_set --key=hash_key --value=$hash_key
-ynh_app_setting_set --key=block_key --value=$block_key
-ynh_app_setting_set --key=shared_secret --value=$shared_secret
+
+# Store settings
+ynh_app_setting_set --key=hash_key --value="$hash_key"
+ynh_app_setting_set --key=block_key --value="$block_key"
+ynh_app_setting_set --key=shared_secret --value="$shared_secret"
 
 # Backend password generation
-while IFS= read -r backend_url
-do 
-    backend_id=$(echo $backend_url | sed s@^https://@@ | sed 's/[.-]/_/g' | sed s@/@_@g)
-    varname="pwd__${backend_id}"
-    declare "$varname"=$(ynh_string_random)
-    ynh_app_setting_set --key=$varname --value=${!varname}
+while IFS= read -r backend_url; do
+    if [[ -n "$backend_url" ]]; then
+        backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
+        varname="pwd__${backend_id}"
+        password=$(ynh_string_random --length=32)
+        ynh_app_setting_set --key="$varname" --value="$password"
+    fi
 done <<< "$backends_urls"
 
 #=================================================
@@ -29,72 +34,191 @@ ynh_script_progression "Setting up source files..."
 
 ynh_setup_source --dest_dir="$install_dir"
 
-chown -R "$app:$app" "$install_dir"
+# Ensure proper ownership and permissions for the app user
+chown -R "$app:www-data" "$install_dir"
+
+# Ensure the app user has a proper home directory
+usermod -d "$install_dir" "$app" 2>/dev/null || true
 
 #=================================================
-# BUILD
+# BUILD APPLICATION
 #=================================================
-ynh_script_progression "Building go nextcloud signaling server..."
+ynh_script_progression "Building Nextcloud signaling server..."
 
-chmod u+x /etc/profile.d/goenv.sh
-/etc/profile.d/goenv.sh
+#chmod u+x /etc/profile.d/goenv.sh
+#/etc/profile.d/goenv.sh
 
-GOCACHE=/opt/goenv/cache
-export GOCACHE
-pushd $install_dir
-make build
+# Set up Go environment
+export PATH="/usr/local/go/bin:$PATH"
+export GOPATH="$install_dir/go"
+export GOCACHE="$install_dir/.cache/go-build"
+export CGO_ENABLED=1
+
+# Create necessary directories
+mkdir -p "$GOPATH" "$GOCACHE"
+chown -R "$app:www-data" "$GOPATH" "$GOCACHE"
+
+# Build the application
+pushd "$install_dir"
+    ynh_hide_warnings ynh_exec_as_app GOPATH="$GOPATH" GOCACHE="$GOCACHE" make build
 popd
-ynh_go_remove
-chown -R "$app:$app" "$install_dir"
+
+# Clean up build artifacts but keep the binary
+ynh_safe_rm "$install_dir/.cache/"
+ynh_safe_rm "$install_dir/go/"
+ynh_safe_rm "$install_dir/.go-version"
+
+# Ensure proper ownership and permissions
+chown -R "$app:www-data" "$install_dir"
+chmod +x "$install_dir/bin/signaling"
+# Restrict world access to install dir for security  
+chmod 750 "$install_dir"
 
 #=================================================
 # APP INITIAL CONFIGURATION
 #=================================================
-ynh_script_progression "Adding $app's configuration files..."
+ynh_script_progression "Adding configuration files..."
 
-# Signaling server
-mkdir -p /etc/$app/
+# Create configuration directories
+mkdir -p "/etc/$app" "/var/log/$app"
+
+# Export backend passwords as environment variables for Jinja template
+while IFS= read -r backend_url; do
+    if [[ -n "$backend_url" ]]; then
+        backend_id=$(echo "$backend_url" | sed 's@^https://@@ ; s/[.-]/_/g ; s@/@_@g')
+        varname="pwd__${backend_id}"
+        password=$(ynh_app_setting_get --key="$varname")
+        export "$varname"="$password"
+    fi
+done <<< "$backends_urls"
+
+# Export port variables for Jinja template
+export port_janus_ws="$port_janus_ws"
+export port_janus_http="$port_janus_http"
+export port_nats="$port_nats"
+
+# Export other variables for Jinja template
+export hash_key="$hash_key"
+export block_key="$block_key"
+export shared_secret="$shared_secret"
+export backends_urls="$backends_urls"
+export turn_api_key="${turn_api_key:-}"
+export turn_secret="${turn_secret:-}"
+export turn_endpoints="${turn_endpoints:-}"
+
+# Signaling server configuration
 ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
-chmod -R 400 "/etc/$app"
-chmod u+x "/etc/$app"
-chown -R "$app:$app" "/etc/$app"
+chmod 600 "/etc/$app/server.conf"
+chown "$app:$app" "/etc/$app/server.conf"
 
-# Janus
+# Janus configuration
 mkdir -p /etc/janus
 ynh_config_add --template="janus.jcfg" --destination="/etc/janus/janus.jcfg"
 ynh_config_add --template="janus.transport.http.jcfg" --destination="/etc/janus/janus.transport.http.jcfg"
 ynh_config_add --template="janus.transport.websockets.jcfg" --destination="/etc/janus/janus.transport.websockets.jcfg"
+chmod 644 /etc/janus/*.jcfg
 
-chmod -R 400 "/etc/janus"
-
-# Nats-server
+# NATS server configuration
 ynh_config_add --template="nats-server.conf" --destination="/etc/nats-server.conf"
-chmod -R 400 "/etc/nats-server.conf"
-chown -R "nats:nats" "/etc/nats-server.conf"
+chmod 644 "/etc/nats-server.conf"
+chown nats:nats "/etc/nats-server.conf"
+
+# Log directory
+chown -R "$app:$app" "/var/log/$app"
 
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
-ynh_script_progression "Adding system configurations related to $app..."
+ynh_script_progression "Adding system configurations..."
 
+# Add nginx configuration
 ynh_config_add_nginx
 
+# Add systemd service
 ynh_config_add_systemd
 
-yunohost service add "janus" --description="Janus server for nextcloud talk"
-yunohost service add "nats-server" --description="Nats server for nextcloud talk"
-yunohost service add "$app" --description="Signaling server for nextcloud talk" --log="/var/log/$app/$app.log"
+# Add to YunoHost services
+yunohost service add janus --description="Janus WebRTC server for Nextcloud Talk" --log="/var/log/janus/janus.log"
+yunohost service add nats-server --description="NATS server for Nextcloud signaling"
+yunohost service add "$app" --description="Nextcloud signaling server" --log="/var/log/$app/$app.log"
 
+# Add log rotation
 ynh_config_add_logrotate
 
 #=================================================
-# START SYSTEMD SERVICE
+# START SYSTEMD SERVICES
 #=================================================
-ynh_script_progression "Starting $app's systemd service..."
+ynh_script_progression "Starting services..."
 
-ynh_systemctl --service="janus" --action="restart"
-ynh_systemctl --service="nats-server" --action="restart"
-ynh_systemctl --service="$app" --action="start"
+# Start services one by one with proper error checking
+# Start NATS server first
+ynh_script_progression "Starting NATS server..."
+
+# Ensure NATS server is in clean state
+ynh_systemctl --service=nats-server --action=stop || true
+ynh_systemctl --service=nats-server --action=disable || true
+
+# Start NATS server
+ynh_systemctl --service=nats-server --action=enable
+ynh_systemctl --service=nats-server --action=start
+
+# Give NATS time to start and check status
+sleep 5
+if ! systemctl is-active --quiet nats-server; then
+    ynh_print_info "NATS server status:"
+    systemctl status nats-server --no-pager -l || true
+    ynh_print_info "NATS server logs:"
+    journalctl -u nats-server --no-pager -l --lines=20 || true
+    ynh_die "Failed to start NATS server. Check logs above for details."
+fi
+
+# Wait a moment before starting next service
+sleep 2
+
+# Start Janus
+ynh_script_progression "Starting Janus..."
+ynh_systemctl --service=janus --action=enable
+ynh_systemctl --service=janus --action=start
+# Give Janus time to start and check status
+sleep 5
+if ! systemctl is-active --quiet janus; then
+    ynh_die "Failed to start Janus"
+fi
+
+# Wait a moment before starting signaling server
+sleep 2
+
+# Start the signaling server
+ynh_script_progression "Starting signaling server..."
+ynh_systemctl --service="$app" --action=enable
+ynh_systemctl --service="$app" --action=start
+# Give signaling server time to start and check status
+sleep 5
+if ! systemctl is-active --quiet "$app"; then
+    ynh_die "Failed to start signaling server. Check logs: journalctl -u $app"
+fi
+
+# Verify services are running
+ynh_script_progression "Verifying services..."
+
+# Give services time to fully start
+sleep 5
+
+# Check if all services are active
+for service in nats-server janus "$app"; do
+    if ! systemctl is-active --quiet "$service"; then
+        ynh_print_warn "Service $service is not running. Check logs: journalctl -u $service"
+    fi
+done
+
+#=================================================
+# FINAL SECURITY PERMISSIONS
+#=================================================
+
+# Ensure secure permissions are set at the very end
+chown -R "$app:www-data" "$install_dir"
+chmod 750 "$install_dir"  # rwxr-x--- (owner: rwx, group: r-x, other: ---)
+chmod +x "$install_dir/bin/signaling"
 
 #=================================================
 # END OF SCRIPT

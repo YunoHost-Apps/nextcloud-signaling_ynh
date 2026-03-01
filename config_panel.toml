@@ -5,10 +5,12 @@ version = "1.0"
 [main]
 name = "Main configuration"
 services = ["__APP__"]
+
     [main.nextcloud]
     name = "Authorization"
     services = ["__APP__"]
     optional = false
+    
         [main.nextcloud.backends_urls]
         ask.en = "Backends urls"
         type = "text"
@@ -16,16 +18,14 @@ services = ["__APP__"]
         help = "List one Nextcloud instances by line to allow its to use this signaling server"
     
     [main.secret]
+    name.en = "Configuration Details"
     optional = false
-        
-        [main.secret.get_secrets_info]
-        ask.en = "Click here to get secrets to configure in your Nextcloud instances (check the history bottom bar after clicking on the button...)"
-        type = "alert"
-        style = "info"
-        
-        [main.secret.get_secrets]
-        ask.en = "Display secrets"
-        type = "button"
+    
+        [main.secret.config_example]
+        ask.en = "Setup Instructions"
+        type = "string"
+        readonly = true
+        help = "How to configure your Nextcloud servers"
 
     [main.turn]
     name.en = "TURN configuration"
