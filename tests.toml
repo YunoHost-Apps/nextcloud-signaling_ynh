@@ -10,3 +10,9 @@ test_format = 1.0
     args.turn_endpoints = "turn:coturn.example.com:5349"
     args.turn_api_key = "turnserver"
     args.turn_secret = "v3rysecretpassword"
+
+
+# Curl tests for signaling server endpoints
+[default.curl_tests]
+api_welcome.path = "/api/v1/welcome"
+api_welcome.expect_return_code = 200

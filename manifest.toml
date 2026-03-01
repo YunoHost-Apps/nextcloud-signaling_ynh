@@ -12,7 +12,11 @@ version = "2.1.0~ynh1"
 maintainers = ["ljf"]
 
 [upstream]
-license = "AGPL-3.0"
+license = "AGPL-3.0-or-later"
+website = "https://nextcloud.com/talk/"
+demo = "https://nextcloud.com/talk/"
+admindoc = "https://nextcloud-spreed-signaling.readthedocs.io/"
+userdoc = "https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/high_performance_backend_for_talk.html"
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
@@ -25,7 +29,7 @@ ldap = "not_relevant"
 sso = "not_relevant"
 
 disk = "50M"
-ram.build = "50M"
+ram.build = "200M"
 ram.runtime = "50M"
 
 [install]
@@ -68,7 +72,6 @@ ram.runtime = "50M"
     autoupdate.strategy = "latest_github_release"
     
     [resources.system_user]
-    home = "/var/www/__APP__"
 
     [resources.install_dir]
 
@@ -81,7 +84,7 @@ ram.runtime = "50M"
 
     [resources.ports]
     main.default = 8080
-    janus_http.default = 8188
+    janus_http.default = 8088
     janus_ws.default = 8188
     nats.default = 4222
 

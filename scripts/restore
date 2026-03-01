@@ -14,19 +14,26 @@ chown -R "$app:www-data" "$install_dir"
 #=================================================
 # RESTORE CONFIGURATIONS
 #=================================================
+ynh_script_progression "Restoring configuration files..."
 
 # Signaling server
 ynh_restore "/etc/$app"
 chown -R "$app:$app" "/etc/$app"
+chmod 600 "/etc/$app/server.conf"
+chown "$app:$app" "/etc/$app/server.conf"
+
+# Ensure proper ownership and permissions
+chown -R "$app:www-data" "$install_dir"
+chmod +x "$install_dir/bin/signaling"
+# Restrict world access to install dir for security
+chmod 750 "$install_dir"
 
 # Janus
-ynh_restore "/etc/janus/janus.jcfg"
-ynh_restore "/etc/janus/janus.transport.http.jcfg"
-ynh_restore "/etc/janus/janus.transport.websockets.jcfg"
+ynh_restore "/etc/janus/"
 
 # Nats-server
 ynh_restore "/etc/nats-server.conf"
-chown -R "nats:nats" "/etc/nats-server.conf"
+chown nats:nats "/etc/nats-server.conf"
 
 #=================================================
 # RESTORE SYSTEM CONFIGURATIONS
@@ -38,25 +45,28 @@ ynh_restore "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_restore "/etc/systemd/system/$app.service"
 systemctl enable "$app.service" --quiet
 
-yunohost service add "janus" --description="Janus server for nextcloud talk"
-yunohost service add "nats-server" --description="Nats server for nextcloud talk"
-yunohost service add "$app" --description=Signaling server for nextcloud talk --log=/var/log/$app/$app.log
+yunohost service add "janus" --description="Janus WebRTC server for Nextcloud Talk" --log="/var/log/janus/janus.log"
+yunohost service add "nats-server" --description="NATS server for Nextcloud signaling"
+yunohost service add "$app" --description="Nextcloud signaling server" --log="/var/log/$app/$app.log"
 
 ynh_restore "/etc/logrotate.d/$app"
 
 #=================================================
-# RESTORE VARIOUS FILES
+# RESTORE LOG FILES
 #=================================================
+ynh_script_progression "Restoring log files..."
 
 ynh_restore "/var/log/$app/"
+chown -R "$app:$app" "/var/log/$app"
 
 #=================================================
-# RELOAD NGINX AND PHP-FPM OR THE APP SERVICE
+# RELOAD NGINX AND START SERVICES
 #=================================================
-ynh_script_progression "Reloading NGINX web server and $app's service..."
+ynh_script_progression "Reloading NGINX web server and starting services..."
 
-ynh_systemctl --service="janus" --action="restart"
+# Start services in order
 ynh_systemctl --service="nats-server" --action="restart"
+ynh_systemctl --service="janus" --action="restart"
 ynh_systemctl --service="$app" --action="start"
 
 ynh_systemctl --service=nginx --action=reload
