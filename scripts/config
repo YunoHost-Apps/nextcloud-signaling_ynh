@@ -16,6 +16,7 @@ install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
+
 get__backends_urls() {
     # Get backends_urls from saved settings instead of parsing config file
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
