@@ -21,9 +21,6 @@ ynh_backup "$install_dir"
 
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
-# Backup the signaling config
-ynh_backup "/etc/$app/"
-
 ynh_backup "/etc/janus/"
 
 # Backup nats-server config

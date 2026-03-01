@@ -53,7 +53,7 @@ services = ["__APP__"]
         ask.en = "TURN server endpoints"
         ask.fr = "Points de terminaison du serveur TURN"
         type = "string"
-        bind = "apikey>servers:/etc/__APP__/server.conf"
+        bind = "apikey>servers:__INSTALL_DIR__/server.conf"
         example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
         help.en = "You can fill several endpoints like this `turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp`"
         help.fr = "Vous pouvez remplir plusieurs points de terminaison comme ceci : `turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp`"
@@ -64,12 +64,12 @@ services = ["__APP__"]
         ask.en = "TURN API key"
         ask.fr = "Clé API TURN"
         type = "string"
-        bind = "apikey:/etc/__APP__/server.conf"
+        bind = "apikey:__INSTALL_DIR__/server.conf"
         
         [main.turn.turn_secret]
         ask.en = "TURN secret"
         type = "string"
-        bind = "apikey>secret:/etc/__APP__/server.conf"
+        bind = "apikey>secret:__INSTALL_DIR__/server.conf"
         help.en = "The shared secret to use for generating TURN credentials. This must be the same as on the TURN server."
         help.fr = "Secret partagé à utiliser pour générer les informations d'identification TURN. Il doit être identique à celui du serveur TURN."
         redact = true

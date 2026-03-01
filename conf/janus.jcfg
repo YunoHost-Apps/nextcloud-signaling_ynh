@@ -4,7 +4,7 @@
 # and, if needed, shared apisecret and/or token authentication mechanism
 # between application(s) and Janus.
 general: {
-	configs_folder = "/etc/janus"			# Configuration files folder
+	configs_folder = "/etc/janus"			                            # Configuration files folder
 	plugins_folder = "/usr/lib/x86_64-linux-gnu/janus/plugins"			# Plugins folder
 	transports_folder = "/usr/lib/x86_64-linux-gnu/janus/transports"	# Transports folder
 	events_folder = "/usr/lib/x86_64-linux-gnu/janus/events"			# Event handlers folder
