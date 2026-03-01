@@ -64,12 +64,12 @@ services = ["__APP__"]
         ask.en = "TURN API key"
         ask.fr = "Clé API TURN"
         type = "string"
-        bind = "apikey:/etc/__APP__/server.conf"
+        bind = "apikey:__INSTALL_DIR__/server.conf"
         
         [main.turn.turn_secret]
         ask.en = "TURN secret"
         type = "string"
-        bind = "apikey>secret:/etc/__APP__/server.conf"
+        bind = "apikey>secret:__INSTALL_DIR__/server.conf"
         help.en = "The shared secret to use for generating TURN credentials. This must be the same as on the TURN server."
         help.fr = "Secret partagé à utiliser pour générer les informations d'identification TURN. Il doit être identique à celui du serveur TURN."
         redact = true
