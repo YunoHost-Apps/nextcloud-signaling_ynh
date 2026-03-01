@@ -103,7 +103,7 @@ ynh_config_add --template="janus.transport.websockets.jcfg" --destination="/etc/
 chmod 644 /etc/janus/*.jcfg
 
 # NATS server configuration
-ynh_config_add --template="nats-server.conf" --destination="/etc/nats-server.conf"
+ynh_config_add --jinja --template="nats-server.conf" --destination="/etc/nats-server.conf"
 chmod 644 "/etc/nats-server.conf"
 chown nats:nats "/etc/nats-server.conf"
 
