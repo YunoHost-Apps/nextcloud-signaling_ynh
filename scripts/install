@@ -35,7 +35,7 @@ ynh_script_progression "Setting up source files..."
 ynh_setup_source --dest_dir="$install_dir"
 
 # Ensure proper ownership and permissions for the app user
-chown -R "$app:www-data" "$install_dir"
+#chown -R "$app:www-data" "$install_dir"
 
 # Ensure the app user has a proper home directory
 usermod -d "$install_dir" "$app" 2>/dev/null || true
