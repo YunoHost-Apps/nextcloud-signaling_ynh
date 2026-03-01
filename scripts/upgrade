@@ -18,7 +18,7 @@ ynh_script_progression "Upgrading source files..."
 
 ynh_setup_source --dest_dir="$install_dir" --full_replace
 
-#chown -R "$app:www-data" "$install_dir"
+#chown -R "$app:$app" "$install_dir"
 
 #=================================================
 # BUILD APPLICATION
@@ -49,7 +49,7 @@ ynh_safe_rm "$install_dir/go/"
 ynh_safe_rm "$install_dir/.go-version"
 
 # Ensure proper ownership
-chown -R "$app:www-data" "$install_dir"
+chown -R "$app:$app" "$install_dir"
 chmod +x "$install_dir/bin/signaling"
 
 # Restrict world access to install dir for security
@@ -61,7 +61,7 @@ chmod 750 "$install_dir"
 ynh_script_progression "Updating configuration files..."
 
 # Create configuration directories
-mkdir -p "/etc/$app" "/var/log/$app"
+mkdir -p "/var/log/$app"
 
 # Export backend passwords as environment variables for Jinja template
 while IFS= read -r backend_url; do
@@ -92,9 +92,8 @@ export turn_secret="${turn_secret:-}"
 export turn_endpoints="${turn_endpoints:-}"
 
 # Signaling server configuration
-ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
-chmod 600 "/etc/$app/server.conf"
-chown "$app:$app" "/etc/$app/server.conf"
+ynh_config_add --jinja --template="server.conf" --destination="$install_dir/server.conf"
+chmod 600 "$install_dir/server.conf"
 
 # Janus configuration
 mkdir -p /etc/janus
@@ -104,7 +103,7 @@ ynh_config_add --template="janus.transport.websockets.jcfg" --destination="/etc/
 chmod 644 /etc/janus/*.jcfg
 
 # NATS server configuration
-ynh_config_add --template="nats-server.conf" --destination="/etc/nats-server.conf"
+ynh_config_add --jinja --template="nats-server.conf" --destination="/etc/nats-server.conf"
 chmod 644 "/etc/nats-server.conf"
 chown nats:nats "/etc/nats-server.conf"
 

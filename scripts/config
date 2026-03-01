@@ -16,6 +16,7 @@ install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
 #=================================================
 # SPECIFIC GETTERS FOR TOML SHORT KEY
 #=================================================
+
 get__backends_urls() {
     # Get backends_urls from saved settings instead of parsing config file
     local saved_backends=$(ynh_app_setting_get --key=backends_urls)
@@ -119,9 +120,8 @@ set__backends_urls() {
     done <<< "$backends_urls"
 
     # Update configuration
-    ynh_config_add --jinja --template="server.conf" --destination="/etc/$app/server.conf"
-    chmod 600 "/etc/$app/server.conf"
-    chown "$app:$app" "/etc/$app/server.conf"
+    ynh_config_add --jinja --template="server.conf" --destination="$install_dir/server.conf"
+    chmod 600 "$install_dir/server.conf"
 
     # Restart the service
     ynh_systemctl --service="$app" --action=restart
