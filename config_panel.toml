@@ -21,13 +21,16 @@ services = ["__APP__"]
     
     [main.secret]
     name.en = "Configuration Details"
+    name.fr = "Détails de configuration"
     optional = false
     
         [main.secret.config_example]
         ask.en = "Setup Instructions"
+        ask.fr = "Instructions d'installation"
         type = "string"
         readonly = true
-        help = "How to configure your Nextcloud servers"
+        help.en = "How to configure your Nextcloud servers"
+        help.fr = "Comment configurer vos serveurs Nextcloud"
         
         [main.secret.get_secrets_info]
         ask.en = "Click here to get secrets to configure in your Nextcloud instances (check the history bottom bar after clicking on the button...)"
