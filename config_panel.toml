@@ -53,7 +53,7 @@ services = ["__APP__"]
         ask.en = "TURN server endpoints"
         ask.fr = "Points de terminaison du serveur TURN"
         type = "string"
-        bind = "apikey>servers:/etc/__APP__/server.conf"
+        bind = "apikey>servers:__INSTALL_DIR__/server.conf"
         example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
         help.en = "You can fill several endpoints like this `turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp`"
         help.fr = "Vous pouvez remplir plusieurs points de terminaison comme ceci : `turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp`"
