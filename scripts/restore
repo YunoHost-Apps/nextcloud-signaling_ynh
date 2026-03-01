@@ -9,20 +9,14 @@ ynh_script_progression "Restoring the app main directory..."
 
 ynh_restore "$install_dir"
 
-#chown -R "$app:www-data" "$install_dir"
+chown -R "$app:$app" "$install_dir"
 
 #=================================================
 # RESTORE CONFIGURATIONS
 #=================================================
 ynh_script_progression "Restoring configuration files..."
 
-# Signaling server
-ynh_restore "/etc/$app"
-chmod 600 "/etc/$app/server.conf"
-chown "$app:$app" "/etc/$app/server.conf"
-
 # Ensure proper ownership and permissions
-chown -R "$app:www-data" "$install_dir"
 chmod +x "$install_dir/bin/signaling"
 # Restrict world access to install dir for security
 chmod 750 "$install_dir"
