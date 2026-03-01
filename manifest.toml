@@ -7,24 +7,29 @@ name = "Nextcloud Signaling"
 description.en = "Standalone signaling server in order to meet more than 3 persons onto Nextcloud Talk"
 description.fr = "Serveur de signalisation autonome pour rencontrer plus de 3 personnes sur Nextcloud Talk"
 
-version = "2.0.0~ynh2"
+version = "2.1.0~ynh1"
 
 maintainers = ["ljf"]
 
 [upstream]
-license = "AGPL-3.0"
+license = "AGPL-3.0-or-later"
+website = "https://nextcloud.com/talk/"
+demo = "https://nextcloud.com/talk/"
+admindoc = "https://nextcloud-spreed-signaling.readthedocs.io/"
+userdoc = "https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/high_performance_backend_for_talk.html"
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
-yunohost = ">= 12.0.4"
+yunohost = ">= 12.1.38"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
+
 ldap = "not_relevant"
 sso = "not_relevant"
 
 disk = "50M"
-ram.build = "50M"
+ram.build = "200M"
 ram.runtime = "50M"
 
 [install]
@@ -39,14 +44,16 @@ ram.runtime = "50M"
     ask.en = "Backend url"
     type = "string"
     example = "https://cloud.example.com"
-    help = "Configure the first Nextcloud instance to allow the use this signaling server. After the installation, you will be able to add others instances from the app configuration panel."
-
+    help.en = "Configure the first Nextcloud instance to allow the use this signaling server. After the installation, you will be able to add others instances from the app configuration panel."
+    help.fr = "Configurez la première instance Nextcloud pour autoriser l'utilisation de ce serveur de signalisation. Après l'installation, vous pourrez ajouter d'autres instances à partir du panneau de configuration de l'application."
+    
     [install.turn_endpoints]
     ask.en = "TURN server endpoints"
     type = "string"
     example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
     help.en = "You need at least one Coturn or eturn servers. Coturn is packaged for YunoHost so you should probably install it first."
-
+    help.fr = "Vous avez besoin d'au moins un serveur Coturn ou eturn. Coturn est fourni dans le package YunoHost, vous devriez donc probablement l'installer en premier."
+    
     [install.turn_api_key]
     ask.en = "TURN API key"
     type = "string"
@@ -55,22 +62,20 @@ ram.runtime = "50M"
     ask.en = "TURN secret"
     type = "string"
 
-
 [resources]
 
     [resources.sources]
 
     [resources.sources.main]
-    url = "https://github.com/strukturag/nextcloud-spreed-signaling/releases/download/v2.0.0/nextcloud-spreed-signaling-v2.0.0.tar.gz"
-    sha256 = "3be2e2f4e8c5620766bdb99317243d7e8533e1cc319d328684bf031c4b9c0025"
-
-    # autoupdate.strategy = "latest_github_tag"
+    url = "https://github.com/strukturag/nextcloud-spreed-signaling/releases/download/v2.1.0/nextcloud-spreed-signaling-v2.1.0.tar.gz"
+    sha256 = "846b456b13285a7e3df394505e1b5e804383fdcf6ab4696b2e34bf2d0e217ff1"
+    autoupdate.strategy = "latest_github_release"
     
     [resources.system_user]
-    home = "/var/www/__APP__"
 
     [resources.install_dir]
-
+    group = "www-data:r-x"
+    
     [resources.permissions]
     main.url = "/"
     main.allowed = "visitors"
@@ -80,9 +85,13 @@ ram.runtime = "50M"
 
     [resources.ports]
     main.default = 8080
-    janus_http.default = 8188
+    janus_http.default = 8088
     janus_ws.default = 8188
     nats.default = 4222
 
     [resources.apt]
     packages = "automake, build-essential, python3, protobuf-compiler, nats-server, janus"
+
+    [resources.go]
+    version = "1.25"
+    

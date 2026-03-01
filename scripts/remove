@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -8,23 +7,38 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression "Removing system configurations related to $app..."
 
+# Remove logrotate configuration
 ynh_config_remove_logrotate
 
+# Stop and disable services before removal
+ynh_systemctl --service="$app" --action="stop"
+ynh_systemctl --service="$app" --action="disable"
+ynh_systemctl --service="janus" --action="stop"
+ynh_systemctl --service="janus" --action="disable"
+ynh_systemctl --service="nats-server" --action="stop"
+ynh_systemctl --service="nats-server" --action="disable"
+
+# Remove services from YunoHost monitoring
 if ynh_hide_warnings yunohost service status "$app" >/dev/null; then
     yunohost service remove "$app"
+fi
+if ynh_hide_warnings yunohost service status "nats-server" >/dev/null; then
     yunohost service remove "nats-server"
+fi
+if ynh_hide_warnings yunohost service status "janus" >/dev/null; then
     yunohost service remove "janus"
 fi
+
+# Remove systemd service
 ynh_config_remove_systemd
 
+# Remove nginx configuration
 ynh_config_remove_nginx
 
-# Remove configurations
+# Remove configurations after services are stopped
 ynh_safe_rm "/etc/nats-server.conf"
 ynh_safe_rm "/etc/janus"
 ynh_safe_rm "/etc/$app"
-
-ynh_go_remove
 
 #=================================================
 # END OF SCRIPT

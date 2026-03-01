@@ -1,6 +1,7 @@
 [Unit]
-Description=Small description of the service
+Description=Nextcloud Signaling Server
 After=network.target janus.service nats-server.service
+Requires=janus.service nats-server.service
 
 [Service]
 Type=simple
@@ -11,9 +12,13 @@ ExecStart=__INSTALL_DIR__/bin/signaling --config /etc/__APP__/server.conf
 StandardOutput=append:/var/log/__APP__/__APP__.log
 StandardError=inherit
 Restart=on-failure
+RestartSec=5
 ConfigurationDirectory=__APP__
-ConfigurationDirectoryMode=500
-ExecPaths=__INSTALL_DIR__/bin/signaling __INSTALL_DIR__ /usr/lib/
+ConfigurationDirectoryMode=755
+
+# Allow access to required directories and files
+ReadWritePaths=/var/log/__APP__
+ReadOnlyPaths=/etc/__APP__
 
 # Sandboxing options to harden security
 # Details for these options: https://www.freedesktop.org/software/systemd/man/systemd.exec.html
@@ -24,30 +29,16 @@ RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 RestrictNamespaces=yes
 RestrictRealtime=yes
 DevicePolicy=closed
-ProtectClock=yes
-ProtectHostname=yes
-ProtectProc=invisible
 ProtectSystem=strict
 ProtectControlGroups=yes
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
 LockPersonality=yes
 SystemCallArchitectures=native
-SystemCallFilter=~@clock @debug @module @mount @obsolete @reboot @setuid @swap @cpu-emulation @privileged
 
-# Specific restrictions from 
-# https://github.com/strukturag/nextcloud-spreed-signaling/blob/master/dist/init/systemd/signaling.service
-MemoryDenyWriteExecute=yes
-NoExecPaths=/
-PrivateUsers=yes
-ProcSubset=pid
-ProtectHome=yes
-ProtectKernelLogs=yes
-RemoveIPC=yes
-RestrictSUIDSGID=yes
-# SystemCallFilter=@system-service
-# SystemCallFilter=~ @privileged
-# CapabilityBoundingSet=
+# Less restrictive filters for better compatibility
+SystemCallFilter=@system-service
+SystemCallFilter=~@debug @mount @swap @reboot @module @obsolete
 
 # Denying access to capabilities that should not be relevant for webapps
 # Doc: https://man7.org/linux/man-pages/man7/capabilities.7.html

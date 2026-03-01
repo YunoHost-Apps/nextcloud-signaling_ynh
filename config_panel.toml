@@ -5,44 +5,64 @@ version = "1.0"
 [main]
 name = "Main configuration"
 services = ["__APP__"]
+
     [main.nextcloud]
     name = "Authorization"
     services = ["__APP__"]
     optional = false
+    
         [main.nextcloud.backends_urls]
-        ask.en = "Backends urls"
+        ask.en = "Backends URLs"
+        ask.fr = "URL des backends"
         type = "text"
         example = "https://cloud.example.com"
-        help = "List one Nextcloud instances by line to allow its to use this signaling server"
+        help.en = "List one Nextcloud instances by line to allow its to use this signaling server"
+        help.fr = "Répertoriez les instances Nextcloud par ligne pour leur permettre d'utiliser ce serveur de signalisation"
     
     [main.secret]
+    name.en = "Configuration Details"
+    name.fr = "Détails de configuration"
     optional = false
+    
+        [main.secret.config_example]
+        ask.en = "Setup Instructions"
+        ask.fr = "Instructions d'installation"
+        type = "string"
+        readonly = true
+        help.en = "How to configure your Nextcloud servers"
+        help.fr = "Comment configurer vos serveurs Nextcloud"
         
         [main.secret.get_secrets_info]
-        ask.en = "Click here to get secrets to configure in your nextcloud instances (check the history bottom bar after clicking on the button...)"
+        ask.en = "Click here to get secrets to configure in your Nextcloud instances (check the history bottom bar after clicking on the button...)"
+        ask.fr = "Cliquez ici pour obtenir les secrets à configurer dans vos instances Nextcloud (vérifiez la barre d'historique en bas après avoir cliqué sur le bouton...)"
         type = "alert"
         style = "info"
         
         [main.secret.get_secrets]
         ask.en = "Display secrets"
+        ask.fr = "Afficher les secrets"
         type = "button"
 
     [main.turn]
     name.en = "TURN configuration"
+    name.fr = "Configuration TURN"
     services = ["__APP__"]
     optional = false
         
         [main.turn.turn_endpoints]
         ask.en = "TURN server endpoints"
+        ask.fr = "Points de terminaison du serveur TURN"
         type = "string"
         bind = "apikey>servers:/etc/__APP__/server.conf"
         example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
-        help = "You can fill several endpoints like this `turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp`"
+        help.en = "You can fill several endpoints like this `turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp`"
+        help.fr = "Vous pouvez remplir plusieurs points de terminaison comme ceci : `turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp`"
         pattern.regexp = '^turns?:'
         pattern.error = "Please follow this format: turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
         
         [main.turn.turn_api_key]
         ask.en = "TURN API key"
+        ask.fr = "Clé API TURN"
         type = "string"
         bind = "apikey:/etc/__APP__/server.conf"
         
@@ -50,5 +70,6 @@ services = ["__APP__"]
         ask.en = "TURN secret"
         type = "string"
         bind = "apikey>secret:/etc/__APP__/server.conf"
-        help = "The shared secret to use for generating TURN credentials. This must be the same as on the TURN server."
+        help.en = "The shared secret to use for generating TURN credentials. This must be the same as on the TURN server."
+        help.fr = "Secret partagé à utiliser pour générer les informations d'identification TURN. Il doit être identique à celui du serveur TURN."
         redact = true
