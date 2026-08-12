@@ -7,7 +7,7 @@ name = "Nextcloud Signaling"
 description.en = "Standalone signaling server in order to meet more than 3 persons onto Nextcloud Talk"
 description.fr = "Serveur de signalisation autonome pour rencontrer plus de 3 personnes sur Nextcloud Talk"
 
-version = "2.1.1~ynh1"
+version = "2.1.1~ynh2"
 
 maintainers = ["ljf"]
 
