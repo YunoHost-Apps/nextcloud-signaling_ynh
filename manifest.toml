@@ -20,7 +20,7 @@ userdoc = "https://docs.nextcloud.com/server/latest/admin_manual/configuration_s
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
-yunohost = ">= 12.1.38"
+yunohost = ">= 12.1.40"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
@@ -48,18 +48,22 @@ ram.runtime = "50M"
     help.fr = "Configurez la première instance Nextcloud pour autoriser l'utilisation de ce serveur de signalisation. Après l'installation, vous pourrez ajouter d'autres instances à partir du panneau de configuration de l'application."
     
     [install.turn_endpoints]
-    ask.en = "TURN server endpoints"
+    ask.en = "STURN or TURN URI"
     type = "string"
     example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
     help.en = "You need at least one Coturn or eturn servers. Coturn is packaged for YunoHost so you should probably install it first."
     help.fr = "Vous avez besoin d'au moins un serveur Coturn ou eturn. Coturn est fourni dans le package YunoHost, vous devriez donc probablement l'installer en premier."
     
     [install.turn_api_key]
-    ask.en = "TURN API key"
+    ask.en = "TURN username"
+    help.en = "This is the TURN username provided by Coturn"
+    help.fr = "Il s'agit du nom d'utilisateur TURN fourni par Coturn"
     type = "string"
 
     [install.turn_secret]
-    ask.en = "TURN secret"
+    ask.en = "TURN password"
+    help.en = "This is the TURN password provided by Coturn"
+    help.fr = "Voici le mot de passe TURN fourni par Coturn"
     type = "string"
 
 [resources]
