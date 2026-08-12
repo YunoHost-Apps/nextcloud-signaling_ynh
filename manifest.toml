@@ -20,7 +20,7 @@ userdoc = "https://docs.nextcloud.com/server/latest/admin_manual/configuration_s
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
-yunohost = "<= 12.1.40.1"
+yunohost = ">= 12.1.40"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
