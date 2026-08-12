@@ -20,7 +20,7 @@ userdoc = "https://docs.nextcloud.com/server/latest/admin_manual/configuration_s
 code = "https://github.com/strukturag/nextcloud-spreed-signaling"
 
 [integration]
-yunohost = ">= 12.1.40"
+yunohost = "<= 12.1.40.1"
 helpers_version = "2.1"
 architectures = "all"
 multi_instance = false
@@ -56,14 +56,14 @@ ram.runtime = "50M"
     
     [install.turn_api_key]
     ask.en = "TURN username"
-    help.en = "This is the TURN username provided by Coturn"
-    help.fr = "Il s'agit du nom d'utilisateur TURN fourni par Coturn"
+    help.en = "This is the TURN username that was provided by Coturn on the app admin page."
+    help.fr = "Il s'agit du nom d'utilisateur TURN fourni par Coturn sur la page d'administration de l'application."
     type = "string"
 
     [install.turn_secret]
     ask.en = "TURN password"
-    help.en = "This is the TURN password provided by Coturn"
-    help.fr = "Voici le mot de passe TURN fourni par Coturn"
+    help.en = "This is the TURN password provided by Coturn on the app admin page."
+    help.fr = "Voici le mot de passe TURN fourni par Coturn sur la page d'administration de l'application."
     type = "string"
 
 [resources]
