@@ -41,7 +41,8 @@ ram.runtime = "50M"
     default = "/standalone-signaling"
 
     [install.backends_urls]
-    ask.en = "Backend url"
+    ask.en = "Backends URLs"
+    ask.fr = "URL des backends"
     type = "string"
     example = "https://cloud.example.com"
     help.en = "Configure the first Nextcloud instance to allow the use this signaling server. After the installation, you will be able to add others instances from the app configuration panel."
@@ -49,6 +50,7 @@ ram.runtime = "50M"
     
     [install.turn_endpoints]
     ask.en = "STURN or TURN URI"
+    ask.fr = "URI STURN ou TURN"
     type = "string"
     example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
     help.en = "You need at least one Coturn or eturn servers. Coturn is packaged for YunoHost so you should probably install it first."
@@ -56,12 +58,14 @@ ram.runtime = "50M"
     
     [install.turn_api_key]
     ask.en = "TURN username"
+    ask.fr = "Nom d'utilisateur TURN"
     help.en = "This is the TURN username that was provided by Coturn on the app admin page."
     help.fr = "Il s'agit du nom d'utilisateur TURN fourni par Coturn sur la page d'administration de l'application."
     type = "string"
 
     [install.turn_secret]
     ask.en = "TURN password"
+    ask.fr = "Mot de passe TURN"
     help.en = "This is the TURN password provided by Coturn on the app admin page."
     help.fr = "Voici le mot de passe TURN fourni par Coturn sur la page d'administration de l'application."
     type = "string"

@@ -50,8 +50,8 @@ services = ["__APP__"]
     optional = false
         
         [main.turn.turn_endpoints]
-        ask.en = "TURN server endpoints"
-        ask.fr = "Points de terminaison du serveur TURN"
+        ask.en = "STURN or TURN URI"
+        ask.fr = "URI STURN ou TURN"
         type = "string"
         bind = "apikey>servers:__INSTALL_DIR__/server.conf"
         example = "turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
@@ -61,15 +61,18 @@ services = ["__APP__"]
         pattern.error = "Please follow this format: turn:domain.tld:3478?transport=udp,turn:domain.tld:3478?transport=tcp"
         
         [main.turn.turn_api_key]
-        ask.en = "TURN API key"
-        ask.fr = "Clé API TURN"
+        ask.en = "TURN username"
+        ask.fr = "Nom d'utilisateur TURN"
         type = "string"
         bind = "apikey:__INSTALL_DIR__/server.conf"
+        help.en = "This is the TURN username that was provided by Coturn on the app admin page."
+        help.fr = "Il s'agit du nom d'utilisateur TURN fourni par Coturn sur la page d'administration de l'application."
         
         [main.turn.turn_secret]
-        ask.en = "TURN secret"
+        ask.en = "TURN password"
+        ask.fr = "Mot de passe TURN"
         type = "string"
         bind = "apikey>secret:__INSTALL_DIR__/server.conf"
-        help.en = "The shared secret to use for generating TURN credentials. This must be the same as on the TURN server."
-        help.fr = "Secret partagé à utiliser pour générer les informations d'identification TURN. Il doit être identique à celui du serveur TURN."
+        help.en = "This is the TURN password provided by Coturn on the app admin page."
+        help.fr = "Voici le mot de passe TURN fourni par Coturn sur la page d'administration de l'application."
         redact = true
