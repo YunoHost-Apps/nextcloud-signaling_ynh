@@ -59,15 +59,15 @@ ram.runtime = "50M"
     [install.turn_api_key]
     ask.en = "TURN username"
     ask.fr = "Nom d'utilisateur TURN"
-    help.en = "This is the TURN username that was provided by Coturn on the app admin page."
-    help.fr = "Il s'agit du nom d'utilisateur TURN fourni par Coturn sur la page d'administration de l'application."
+    help.en = "This is the TURN username that was provided by CoTurn on the app admin page."
+    help.fr = "Il s'agit du nom d'utilisateur TURN fourni par CoTurn sur la page d'administration de l'application."
     type = "string"
 
     [install.turn_secret]
     ask.en = "TURN password"
     ask.fr = "Mot de passe TURN"
-    help.en = "This is the TURN password provided by Coturn on the app admin page."
-    help.fr = "Voici le mot de passe TURN fourni par Coturn sur la page d'administration de l'application."
+    help.en = "This is the TURN password provided by CoTurn on the app admin page."
+    help.fr = "Voici le mot de passe TURN fourni par CoTurn sur la page d'administration de l'application."
     type = "string"
 
 [resources]

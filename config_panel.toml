@@ -39,8 +39,8 @@ services = ["__APP__"]
         style = "info"
         
         [main.secret.get_secrets]
-        ask.en = "Display secrets"
-        ask.fr = "Afficher les secrets"
+        ask.en = "Display passwords"
+        ask.fr = "Afficher les mots de passe"
         type = "button"
 
     [main.turn]
@@ -65,14 +65,14 @@ services = ["__APP__"]
         ask.fr = "Nom d'utilisateur TURN"
         type = "string"
         bind = "apikey:__INSTALL_DIR__/server.conf"
-        help.en = "This is the TURN username that was provided by Coturn on the app admin page."
-        help.fr = "Il s'agit du nom d'utilisateur TURN fourni par Coturn sur la page d'administration de l'application."
+        help.en = "This is the TURN username that was provided by CoTurn on the app admin page."
+        help.fr = "Il s'agit du nom d'utilisateur TURN fourni par CoTurn sur la page d'administration de l'application."
         
         [main.turn.turn_secret]
         ask.en = "TURN password"
         ask.fr = "Mot de passe TURN"
         type = "string"
         bind = "apikey>secret:__INSTALL_DIR__/server.conf"
-        help.en = "This is the TURN password provided by Coturn on the app admin page."
-        help.fr = "Voici le mot de passe TURN fourni par Coturn sur la page d'administration de l'application."
+        help.en = "This is the TURN password provided by CoTurn on the app admin page."
+        help.fr = "Voici le mot de passe TURN fourni par CoTurn sur la page d'administration de l'application."
         redact = true

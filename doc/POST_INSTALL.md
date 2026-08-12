@@ -1,6 +1,6 @@
 Don't forget to bind this High Performance backend signaling server to your Nextcloud instance, by following thoses steps:
  
- * In the config panel of this app, click on the `Display password` button
+ * In the config panel of this app, click on the `Display passwords` button
  * Copy the shared secret related to `__BACKENDS_URLS__`
  * Go on [the Nextcloud talk administration page](https://__BACKENDS_URLS__/settings/admin/talk)
  * In High performance infrastructure section, fill
