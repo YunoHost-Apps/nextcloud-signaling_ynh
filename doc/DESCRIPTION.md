@@ -13,7 +13,7 @@
 ## Requirements
 
 - A Nextcloud instance with Talk app installed
-- At least one TURN/STUN server (Coturn is recommended and available as a YunoHost app)
+- At least one TURN/STUN server (CoTurn is recommended and available as a YunoHost app)
 - Janus WebRTC Gateway (automatically installed as dependency)
 
 ## Configuration
